@@ -12,7 +12,8 @@ int main(int argc, char **argv)
 	}
 	char *joueursName[2];
 	int port = atoi(argv[1]);
-	int sockTrans;
+	int sockTransJ1;
+	int sockTransJ2;
 	int sizeAddr;
 	int err;
 	struct sockaddr_in addClient;
@@ -24,7 +25,7 @@ int main(int argc, char **argv)
 	TPartieRep repJoueur2;
 	//Joueur 1
 	sockTransJ1 = accept(sockServ, (struct sockaddr *)&addClient, (socklen_t *)&sizeAddr);
-	if (sockTrans < 0)
+	if (sockTransJ1 < 0)
 	{
 		perror("(serveurTCP) erreur sur accept");
 		return -5;
@@ -66,18 +67,26 @@ int main(int argc, char **argv)
 	{
 		repJoueur2.validCoulPion = KO;
 	}
-	if (reqJoueur1.coulPion == BLANC)
-	{
-		joueursName[1] = reqJoueur2.nomJoueur;
+	else{
+		repJoueur2.validCoulPion = OK;
 	}
-	else
-	{
-		joueursName[0] = reqJoueur2.nomJoueur;
-	}
+	if (repJoueur2.validCoulPion == KO)
+    {
+        if (reqJoueur1.coulPion == BLANC)
+        {
+            reqJoueur2.coulPion = NOIR;
+			joueursName[1] = reqJoueur2.nomJoueur;
+        }
+        else
+        {
+            reqJoueur2.coulPion = BLANC;
+			joueursName[0] = reqJoueur2.nomJoueur;
+        }
+    }
 
 	//Envoie au joueurs la réponse
-	repJoueur1.nomAdvers = reqJoueur2.nomJoueur;
-	repJoueur2.nomAdvers = reqJoueur1.nomJoueur;
+	memcpy(repJoueur1.nomAdvers,reqJoueur2.nomJoueur,T_NOM);
+	memcpy(repJoueur2.nomAdvers,reqJoueur1.nomJoueur,T_NOM);
 	repJoueur1.err = ERR_OK;
 	repJoueur2.err = ERR_OK;
 
