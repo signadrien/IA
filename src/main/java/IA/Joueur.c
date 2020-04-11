@@ -54,10 +54,10 @@ int main(int argc, char **argv)
 	char chaine[T_BUF];
 	int sockServer = socketClient("127.0.0.1", port);
 	if (sockServer <= 0)
-		{
-			perror("(client) Erreur dans la connexion avec le serveur");
-			return -1;
-		}
+	{
+		perror("(client) Erreur dans la connexion avec le serveur");
+		return -1;
+	}
 	int continuer = 1;
 	char stop[T_BUF];
 	int err = 0;
@@ -67,7 +67,6 @@ int main(int argc, char **argv)
 	TPartieRep Reponse;
 	char color[T_BUF];
 
-	
 	do
 	{
 		do
@@ -123,7 +122,7 @@ int main(int argc, char **argv)
 			Requete.coulPion = BLANC;
 			begin = 1;
 		}
-	} 
+	}
 
 	int end = 0;
 
@@ -133,11 +132,10 @@ int main(int argc, char **argv)
 		TCoupRep ReponseC;
 
 		/**** VALIDATION *****/
-		if (begin){
+		if (begin)
+		{
 			//ASK MOTEUR NEXT COUP
-			
 		}
-
 
 		/******* COMM MOTEUR ******/
 
@@ -223,13 +221,6 @@ int main(int argc, char **argv)
 			return -4;
 		}
 		*/
-
-		
-
-
-
-
-		
 	}
 
 	/**** MOTEUR ***/
