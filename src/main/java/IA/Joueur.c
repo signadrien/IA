@@ -116,11 +116,15 @@ int main(int argc, char **argv)
 			Requete.coulPion = BLANC;
 		}
 	}
-	
-	int end = 0;
 
+	int end = 0;
+	
 	while (!end)
 	{
+
+		/**** VALIDATION *****/
+
+
 
 		/******* COMM MOTEUR ******/
 
@@ -207,7 +211,12 @@ int main(int argc, char **argv)
 		}
 		*/
 
-		/**** VALIDATION *****/
+		
+
+
+
+
+		
 	}
 
 	/**** MOTEUR ***/
