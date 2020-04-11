@@ -53,6 +53,11 @@ int main(int argc, char **argv)
 	int port = atoi(argv[1]);
 	char chaine[T_BUF];
 	int sockServer = socketClient("127.0.0.1", port);
+	if (sockServer <= 0)
+		{
+			perror("(client) Erreur dans la connexion avec le serveur");
+			return -1;
+		}
 	int continuer = 1;
 	char stop[T_BUF];
 	int err = 0;
