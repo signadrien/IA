@@ -24,12 +24,14 @@ int main(int argc, char **argv)
 	TPartieReq reqJoueur2;
 	TPartieRep repJoueur2;
 	//Joueur 1
+	printf("Attente de la connexion du premier joueur");
 	sockTransJ1 = accept(sockServ, (struct sockaddr *)&addClient, (socklen_t *)&sizeAddr);
 	if (sockTransJ1 < 0)
 	{
 		perror("(serveurTCP) erreur sur accept");
 		return -5;
 	}
+	printf("Réception requête joueur 1");
 	err = recv(sockTransJ1, &reqJoueur1, sizeof(TPartieReq), 0);
 	if (err <= 0)
 	{
@@ -40,21 +42,26 @@ int main(int argc, char **argv)
 	}
 	if (reqJoueur1.coulPion == BLANC)
 	{
+		printf("Joueur 1 a la couleur blanche");
 		joueursName[0] = reqJoueur1.nomJoueur;
 	}
 	else
-	{
+	{	
+		printf("Joueur 1 a la couleur noire");
 		joueursName[1] = reqJoueur1.nomJoueur;
 	}
+
 	repJoueur1.validCoulPion = OK;
 
 	//Joueur 2
+	printf("Attente de connexion du joueur 2");
 	sockTransJ2 = accept(sockServ, (struct sockaddr *)&addClient, (socklen_t *)&sizeAddr);
 	if (sockTransJ2 < 0)
 	{
 		perror("(serveurTCP) erreur sur accept");
 		return -5;
 	}
+	printf("Réception de la requête du joueur 2");
 	err = recv(sockTransJ2, &reqJoueur2, sizeof(TPartieReq), 0);
 	if (err <= 0)
 	{
@@ -65,9 +72,11 @@ int main(int argc, char **argv)
 	}
 	if (reqJoueur1.coulPion == reqJoueur2.coulPion)
 	{
+		printf("Joueur 1 a déjà choisie cette couleur, donc Joueur 2 a ");
 		repJoueur2.validCoulPion = KO;
 	}
 	else{
+		printf("Joueur 2 a ");
 		repJoueur2.validCoulPion = OK;
 	}
 	if (repJoueur2.validCoulPion == KO)
@@ -75,14 +84,28 @@ int main(int argc, char **argv)
         if (reqJoueur1.coulPion == BLANC)
         {
             reqJoueur2.coulPion = NOIR;
+			printf("la couleur noire");
 			joueursName[1] = reqJoueur2.nomJoueur;
         }
         else
         {
             reqJoueur2.coulPion = BLANC;
+			printf("la couleur blanche");
 			joueursName[0] = reqJoueur2.nomJoueur;
         }
     }
+	else{
+		if (reqJoueur2.coulPion == BLANC)
+        {
+			printf("la couleur blanche");
+			joueursName[0] = reqJoueur2.nomJoueur;
+        }
+        else
+        {
+			printf("la couleur noire");
+			joueursName[1] = reqJoueur2.nomJoueur;
+        }
+	}
 
 	//Envoie au joueurs la réponse
 	memcpy(repJoueur1.nomAdvers,reqJoueur2.nomJoueur,T_NOM);
