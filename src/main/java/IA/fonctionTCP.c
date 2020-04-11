@@ -2,7 +2,7 @@
 
 #define TAIL_BUF 20
 
-int socketServeur(ushort nPort) {
+int socketServeur(short nPort) {
 	int  sockConx,        /* descripteur socket connexion */
        port,            /* numero de port */
        sizeAddr,        /* taille de l'adresse d'une socket */
@@ -71,7 +71,7 @@ int socketServeur(ushort nPort) {
 }
 
 
-int socketClient(char* nomMachine, ushort nPort) {
+int socketClient(char* nomMachine, short nPort) {
   char chaine[TAIL_BUF];   /* buffer */
   int sock,                /* descripteur de la socket locale */
       port,                /* variables de lecture */

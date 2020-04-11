@@ -10,5 +10,5 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-int socketServeur(ushort nPort);
-int socketClient(char* nomMachine, ushort nPort);
+int socketServeur(short nPort);
+int socketClient(char* nomMachine, short nPort);

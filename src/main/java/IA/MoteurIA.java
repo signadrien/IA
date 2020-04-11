@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.Scanner;
 
 
-public class ClientObj {
+public class MoteurIA {
 	public static void main (String[] args) {
 
 		int port = 0;
