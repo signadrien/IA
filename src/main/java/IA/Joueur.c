@@ -108,7 +108,8 @@ int main(int argc, char **argv)
 			close(sockServer);
 			return -6;
 		}
-	} while (Reponse.err != ERR_COUP);
+
+	} while (Reponse.err != ERR_OK);
 
 	if (Reponse.validCoulPion == KO)
 	{
@@ -129,12 +130,61 @@ int main(int argc, char **argv)
 	while (end != 2)
 	{
 		TCoupReq RequeteC;
+
 		TCoupRep ReponseC;
 
 		/**** VALIDATION *****/
 		if (begin)
 		{
 			//ASK MOTEUR NEXT COUP
+			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
+			if (err <= 0)
+			{
+				perror("(client) erreur sur le send");
+				shutdown(sockServer, SHUT_RDWR);
+				close(sockServer);
+				return -5;
+			}
+			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
+			if (err <= 0)
+			{
+				perror("(serveurTCP) erreur dans la reception");
+				shutdown(sockServer, SHUT_RDWR);
+				close(sockServer);
+				return -6;
+			}
+		}
+		else {
+			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
+			if (err <= 0)
+			{
+				perror("(serveurTCP) erreur dans la reception");
+				shutdown(sockServer, SHUT_RDWR);
+				close(sockServer);
+				return -6;
+			}
+			//ASK MOTEUR NEXT COUP
+			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
+			if (err <= 0)
+			{
+				perror("(client) erreur sur le send");
+				shutdown(sockServer, SHUT_RDWR);
+				close(sockServer);
+				return -5;
+			}
+		}
+
+		if (ReponseC.propCoup != CONT)
+		{
+			if (begin)
+			{
+				begin--;
+			}
+			else
+			{
+				begin++;
+			}
+			end++;
 		}
 
 		/******* COMM MOTEUR ******/

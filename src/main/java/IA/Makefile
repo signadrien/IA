@@ -12,6 +12,11 @@ LD_FLAGS =
 
 all: joueur arbitre
 
+run : all
+	konsole -e ./arbitre 5767&
+	konsole -e ./joueur 5767&
+	konsole -e ./joueur 5767
+
 fonctionTCP.o: fonctionTCP.c fonctionTCP.h
 	gcc -c -o fonctionTCP.o fonctionTCP.c $(LD_FLAGS)
 
