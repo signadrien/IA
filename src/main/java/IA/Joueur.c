@@ -50,9 +50,7 @@ int main(int argc, char **argv)
 	* CLIENT avec VALIDATION
 	*
 	*/
-
-	char *ipMachServ = argv[1];
-	int port = atoi(argv[2]);
+	int port = atoi(argv[1]);
 	char chaine[T_BUF];
 	int sockServer = socketClient("127.0.0.1", port);
 	int continuer = 1;
@@ -60,14 +58,17 @@ int main(int argc, char **argv)
 	int err = 0;
 
 	TPartieReq Requete;
+	short begin;
 	TPartieRep Reponse;
-	char *color;
+	char color[T_BUF];
+
+	
 	do
 	{
 		do
 		{
 			printf("Saisir votre Pseudo (taille <= 20) :\n");
-			scanf("%s", Requete.idReq);
+			scanf("%s", Requete.nomJoueur);
 			printf("Saisir la couleur souhaitée : (n/b)\n");
 			scanf("%s", color);
 			switch (color[0])
@@ -110,20 +111,27 @@ int main(int argc, char **argv)
 		if (Requete.coulPion == BLANC)
 		{
 			Requete.coulPion = NOIR;
+			begin = 0;
 		}
 		else
 		{
 			Requete.coulPion = BLANC;
+			begin = 1;
 		}
-	}
+	} 
 
 	int end = 0;
-	
-	while (!end)
+
+	while (end != 2)
 	{
+		TCoupReq RequeteC;
+		TCoupRep ReponseC;
 
 		/**** VALIDATION *****/
-
+		if (begin){
+			//ASK MOTEUR NEXT COUP
+			
+		}
 
 
 		/******* COMM MOTEUR ******/
