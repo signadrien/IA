@@ -1,8 +1,11 @@
+package IA;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
+
 
 public class ClientObj {
 	public static void main (String[] args) {
