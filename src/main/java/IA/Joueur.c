@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 	
 	while(!fin){
 		
-		err = 0;
+		/*err = 0;
 		while(err<4) {
 			err = recv(sockTrans, &entier1, sizeof(int), MSG_PEEK);
 		}
@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 		if (err <= 0) {
 			perror("(serveurTCP) erreur dans la reception");
 			shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
-			return -4;
+			return -4;*/
 		}
 	}
  
