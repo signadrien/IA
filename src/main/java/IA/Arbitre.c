@@ -8,8 +8,7 @@ void afficherPlateau(TPion plateau [4][4])
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			if (&plateau[j][i] != NULL)
-			{
+			
 				switch (plateau[j][i].typePion)
 				{
 				case CYLINDRE:
@@ -32,12 +31,9 @@ void afficherPlateau(TPion plateau [4][4])
 					printf("Y ");
 				}
 				break;
+				default: printf("* ");
+
 				}
-			}
-			else{
-				printf("* ");
-			}
-			
 		}
 		printf("\n");
 	}
@@ -185,10 +181,17 @@ int main(int argc, char **argv)
 
 	printf("%s commence la partie.\n", joueursName[0]);
 
-	bool fin;
+	bool fin = false;
 	TCoupReq reqCoup;
 	TCoupRep repCoup;
-	TPion plateau[4][4];
+	TPion plateau[4][4] ;
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			plateau[j][i].typePion = 5;
+		}
+	}
 	int ligne, colonne;
 	while (!fin)
 	{
