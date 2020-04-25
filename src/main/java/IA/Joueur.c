@@ -112,16 +112,20 @@ int main(int argc, char **argv)
 		
 
 	} while (Reponse.err != ERR_OK);
-	printf("1\n");
+	printf("ERROK ? %d\n",Reponse.err);
+	printf("valid %d ? \n",Reponse.validCoulPion);
 	if (Reponse.validCoulPion == KO)
 	{
+		printf("Changement de couleur :");
 		if (Requete.coulPion == BLANC)
 		{
+			printf("Vous êtes noir\n");
 			Requete.coulPion = NOIR;
 			begin = 0;
 		}
 		else
 		{
+			printf("Vous êtes blanc\n");
 			Requete.coulPion = BLANC;
 			begin = 1;
 		}
