@@ -139,6 +139,7 @@ int main(int argc, char **argv)
 		TCase Case;
 		Case.c = A;
 		Case.l = UN;
+		RequeteC.posPion = Case;
 		RequeteC.propCoup =CONT;
 
 		TCoupRep ReponseC;
