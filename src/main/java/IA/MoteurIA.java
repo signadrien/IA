@@ -8,8 +8,49 @@ import java.util.Scanner;
 
 
 public class MoteurIA {
+
+	int tab[][] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+
+	void placement(int l, int c, int p, int t){
+		switch(p){
+			case 1 :
+				tab[l][c] = t;
+			break;
+			case 2 :
+				tab[l][c] = -t;
+			break;
+			default:
+		}
+	}
+
+
 	public static void main (String[] args) {
 
+
+
+		for(int i =0 ; i < 4; i++){
+			for(int j = 0; j < 4;j++){
+				
+			}
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 		int port = 0;
 		String addr = "";
 		int arret = 0;
@@ -53,6 +94,6 @@ public class MoteurIA {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 }
 

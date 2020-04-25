@@ -130,6 +130,17 @@ int main(int argc, char **argv)
 	while (end != 2)
 	{
 		TCoupReq RequeteC;
+		RequeteC.idRequest=COUP;
+		RequeteC.numPartie=0;
+		TPion Pion;
+		Pion.coulPion = NOIR;
+		Pion.typePion =SPHERE;
+		RequeteC.pion=Pion;
+		RequeteC.estBloque = false;
+		TCase Case;
+		Case.c = A;
+		Case.l = UN;
+		RequeteC.propCoup =CONT;
 
 		TCoupRep ReponseC;
 
@@ -268,7 +279,7 @@ int main(int argc, char **argv)
 		if (err <= 0) {
 			perror("(serveurTCP) erreur dans la reception");
 			shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
-			return -4;*/
+			return -4;
 		}
 		*/
 	}

@@ -80,7 +80,7 @@ int socketClient(char* nomMachine, short nPort) {
   char* nomMachServ;       /* pour solution getaddrinfo */
   struct sockaddr_in addSockServ;  
                            /* adresse de la socket connexion du serveur */
-  struct addrinfo hints;   /* parametre pour getaddrinfo */
+  struct addrinfo *hints;   /* parametre pour getaddrinfo */
   struct addrinfo *result; /* les adresses obtenues par getaddrinfo */ 
   socklen_t sizeAdd;       /* taille d'une structure pour l'adresse de socket */
   

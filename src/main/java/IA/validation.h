@@ -14,7 +14,7 @@
 
 #ifndef _VALIDATION_H
 #define _VALIDATION_H
-
+#include "ProtoQuantik.h"
 /* Validation d'un coup :
  * parametres :
  *    le numero du joueur courant : 1 (le premier qui a commence a jouer) ou
