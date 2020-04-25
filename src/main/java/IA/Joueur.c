@@ -78,9 +78,11 @@ int main(int argc, char **argv)
 			{
 			case 'n':
 				Requete.coulPion = NOIR;
+				begin = 0 ;
 				break;
 			case 'b':
 				Requete.coulPion = BLANC;
+				begin = 1;
 				break;
 			default:
 				printf("La couleur n'est pas possible.\n");
@@ -98,7 +100,7 @@ int main(int argc, char **argv)
 			close(sockServer);
 			return -5;
 		}
-
+		
 		err = recv(sockServer, &Reponse, sizeof(TPartieRep), 0);
 		if (err <= 0)
 		{
@@ -107,9 +109,10 @@ int main(int argc, char **argv)
 			close(sockServer);
 			return -6;
 		}
+		
 
 	} while (Reponse.err != ERR_OK);
-
+	printf("1\n");
 	if (Reponse.validCoulPion == KO)
 	{
 		if (Requete.coulPion == BLANC)
@@ -125,7 +128,7 @@ int main(int argc, char **argv)
 	}
 
 	int end = 0;
-
+	printf("Debut de la partie\n");
 	while (end != 2)
 	{
 		TCoupReq RequeteC;
@@ -147,8 +150,10 @@ int main(int argc, char **argv)
 		/**** VALIDATION *****/
 		if (begin)
 		{
+			printf("Mon tour\n");
 			//ASK MOTEUR NEXT COUP
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
+			printf("COUP ENVOYE\n");
 			if (err <= 0)
 			{
 				perror("(client) erreur sur le send");
@@ -175,6 +180,7 @@ int main(int argc, char **argv)
 				return -6;
 			}
 			//ASK MOTEUR NEXT COUP
+			printf("Mon tour\n");
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -200,9 +206,7 @@ int main(int argc, char **argv)
 
 		/******* COMM MOTEUR ******/
 
-		/*
-		
-		/*err = 0;
+		/* err = 0;
 		while(err<4) {
 			err = recv(sockTrans, &entier1, sizeof(int), MSG_PEEK);
 		}
