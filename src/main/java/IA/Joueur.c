@@ -61,7 +61,6 @@ int main(int argc, char **argv)
 	int continuer = 1;
 	char stop[T_BUF];
 	int err = 0;
-
 	TPartieReq Requete;
 	short begin;
 	TPartieRep Reponse;
