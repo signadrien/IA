@@ -159,8 +159,8 @@ int main(int argc, char **argv)
 	memcpy(repJoueur2.nomAdvers, reqJoueur1.nomJoueur, T_NOM);
 	repJoueur1.err = ERR_OK;
 	repJoueur2.err = ERR_OK;
-
-	err = send(sockTransJ1, &repJoueur1, sizeof(TCodeRep), 0);
+	
+	err = send(sockTransJ1, &repJoueur1, sizeof(TPartieRep), 0);
 	if (err <= 0)
 	{
 		perror("(client) erreur sur le send");
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 		close(sockTransJ1);
 		return -5;
 	}
-	err = send(sockTransJ2, &repJoueur2, sizeof(TCodeRep), 0);
+	err = send(sockTransJ2, &repJoueur2, sizeof(TPartieRep), 0);
 	if (err <= 0)
 	{
 		perror("(client) erreur sur le send");
@@ -193,8 +193,10 @@ int main(int argc, char **argv)
 		}
 	}
 	int ligne, colonne;
+	//Jeu
 	while (!fin)
 	{
+		initialiserPartie();
 		//Attente d'un coup de joueur 1
 		printf("Attente du coup de joueur 1\n");
 		err = recv(white, &reqCoup, sizeof(TCoupReq), 0);
@@ -228,22 +230,86 @@ int main(int argc, char **argv)
 		{
 		case A:
 		{
-			ligne = 0;
+			colonne = 0;
 		}
 		break;
 		case B:
 		{
-			ligne = 1;
+			colonne = 1;
 		}
 		break;
 		case C:
 		{
-			ligne = 2;
+			colonne = 2;
 		}
 		break;
 		case D:
 		{
+			colonne = 3;
+		}
+		break;
+		default:
+			printf("Error TLg\n");
+			exit(0);
+		}
+		TPropCoup arbitrage;
+		bool isValid = validationCoup(1,reqCoup, &arbitrage);
+		printf("%d",isValid);
+		plateau[ligne][colonne] = reqCoup.pion;
+		afficherPlateau(plateau);
+		printf("%s a joué, au tour de %s", joueursName[0],joueursName[1]);
+
+
+		//Tour du joueur 2
+				
+		printf("Attente du coup de joueur 2\n");
+		err = recv(black, &reqCoup, sizeof(TCoupReq), 0);
+		switch (reqCoup.posPion.l)
+		{
+		case UN:
+		{
+			ligne = 0;
+		}
+		break;
+		case DEUX:
+		{
+			ligne = 1;
+		}
+		break;
+		case TROIS:
+		{
+			ligne = 2;
+		}
+		break;
+		case QUATRE:
+		{
 			ligne = 3;
+		}
+		break;
+		default:
+			printf("Error TLg\n");
+			exit(0);
+		}
+		switch (reqCoup.posPion.c)
+		{
+		case A:
+		{
+			colonne = 0;
+		}
+		break;
+		case B:
+		{
+			colonne = 1;
+		}
+		break;
+		case C:
+		{
+			colonne = 2;
+		}
+		break;
+		case D:
+		{
+			colonne = 3;
 		}
 		break;
 		default:
