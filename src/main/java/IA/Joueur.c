@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -5;
 			}
-
+			printf("Validation de mon coup...\n");
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -179,9 +179,12 @@ int main(int argc, char **argv)
 				return -6;
 			}
 
-			if(ReponseC.err != ERR_OK && ReponseC.validCoup != VALID && ReponseC.propCoup != CONT){
+			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
+				printf("COUP INVALIDE\n");
 				break;
 			}
+			printf("COUP VALIDE.\n");
+			printf("Validation du coup de l'adversaire...\n");
 
 			//Le coup de l'adversaire est valid ?
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
@@ -192,9 +195,11 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
-			if(ReponseC.err != ERR_OK && ReponseC.validCoup != VALID && ReponseC.propCoup != CONT){
+			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
+				printf("COUP INVALIDE.\n");
 				break;
 			}
+			printf("COUP VALIDE.\n");
 			err = recv(sockServer, &RequeteAdversaire, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -209,6 +214,7 @@ int main(int argc, char **argv)
 		case 1:
 
 			//Le coup de l'adversaire est valid ?
+			printf("Validation du coup de l'adversaire...\n");
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -217,9 +223,11 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
-			if(ReponseC.err != ERR_OK && ReponseC.validCoup != VALID && ReponseC.propCoup != CONT){
+			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
+				printf("COUP INVALIDE.\n");
 				break;
 			}
+			printf("COUP VALIDE.\n");
 			err = recv(sockServer, &RequeteAdversaire, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -240,7 +248,7 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -5;
 			}
-
+			printf("Validation de mon coup...\n");
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -249,6 +257,11 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
+			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
+				printf("COUP INVALIDE.\n");
+				break;
+			}
+			printf("COUP VALIDE.\n");
 			break;
 			default:
 				printf("ERROR on Begin value");
