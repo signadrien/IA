@@ -2,38 +2,38 @@
 #include "fonctionTCP.h"
 #include "validation.h"
 
-void afficherPlateau(TPion plateau [4][4])
+void afficherPlateau(TPion plateau[4][4])
 {
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
 		{
-			
-				switch (plateau[j][i].typePion)
-				{
-				case CYLINDRE:
-				{
-					printf("/ ");
-				}
-				break;
-				case PAVE:
-				{
-					printf("_ ");
-				}
-				break;
-				case SPHERE:
-				{
-					printf("O ");
-				}
-				break;
-				case TETRAEDRE:
-				{
-					printf("Y ");
-				}
-				break;
-				default: printf("* ");
 
-				}
+			switch (plateau[j][i].typePion)
+			{
+			case CYLINDRE:
+			{
+				printf("/ ");
+			}
+			break;
+			case PAVE:
+			{
+				printf("_ ");
+			}
+			break;
+			case SPHERE:
+			{
+				printf("O ");
+			}
+			break;
+			case TETRAEDRE:
+			{
+				printf("Y ");
+			}
+			break;
+			default:
+				printf("* ");
+			}
 		}
 		printf("\n");
 	}
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
 	memcpy(repJoueur2.nomAdvers, reqJoueur1.nomJoueur, T_NOM);
 	repJoueur1.err = ERR_OK;
 	repJoueur2.err = ERR_OK;
-	
+
 	err = send(sockTransJ1, &repJoueur1, sizeof(TPartieRep), 0);
 	if (err <= 0)
 	{
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
 	bool fin = false;
 	TCoupReq reqCoup;
 	TCoupRep repCoup;
-	TPion plateau[4][4] ;
+	TPion plateau[4][4];
 	for (int i = 0; i < 4; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 	{
 		initialiserPartie();
 		//Attente d'un coup de joueur 1
-		printf("Attente du coup de joueur 1\n");
+		printf("Attente du coup de joueur 1 %s\n", joueursName[0]);
 		err = recv(white, &reqCoup, sizeof(TCoupReq), 0);
 		switch (reqCoup.posPion.l)
 		{
@@ -224,7 +224,6 @@ int main(int argc, char **argv)
 		break;
 		default:
 			printf("Error TLg\n");
-			exit(0);
 		}
 		switch (reqCoup.posPion.c)
 		{
@@ -250,19 +249,46 @@ int main(int argc, char **argv)
 		break;
 		default:
 			printf("Error TLg\n");
-			exit(0);
 		}
 		TPropCoup arbitrage;
-		bool isValid = validationCoup(1,reqCoup, &arbitrage);
-		printf("%d",isValid);
-		plateau[ligne][colonne] = reqCoup.pion;
-		afficherPlateau(plateau);
-		printf("%s a joué, au tour de %s", joueursName[0],joueursName[1]);
+		bool isValid = validationCoup(1, reqCoup, &arbitrage);
+		repCoup.propCoup = arbitrage;
+		if (isValid)
+		{
+			repCoup.validCoup = VALID;
+		}
+		if (!isValid || arbitrage != reqCoup.propCoup)
+		{
+			printf("Triche");
+			repCoup.validCoup = TRICHE;
+			repCoup.propCoup = PERDU;
 
+		}
+		repCoup.err = ERR_OK;
+		
+		err = send(sockTransJ1, &repCoup, sizeof(TCoupRep), 0);
+		if (err <= 0)
+		{
+			perror("(client) erreur sur le send");
+			shutdown(sockTransJ1, SHUT_RDWR);
+			close(sockTransJ1);
+			return -5;
+		}
+		err = send(sockTransJ2, &repCoup, sizeof(TCoupRep), 0);
+		if (err <= 0)
+		{
+			perror("(client) erreur sur le send");
+			shutdown(sockTransJ2, SHUT_RDWR);
+			close(sockTransJ2);
+			return -5;
+		}
+		//plateau[ligne][colonne] = reqCoup.pion;
+		//afficherPlateau(plateau);
+		printf("%s a joué, au tour de %s", joueursName[0], joueursName[1]);
 
 		//Tour du joueur 2
-				
-		printf("Attente du coup de joueur 2\n");
+
+		printf("Attente du coup de joueur 2 %s\n", joueursName[1]);
 		err = recv(black, &reqCoup, sizeof(TCoupReq), 0);
 		switch (reqCoup.posPion.l)
 		{
