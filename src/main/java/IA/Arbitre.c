@@ -159,7 +159,7 @@ int main(int argc, char **argv)
 	memcpy(repJoueur2.nomAdvers, reqJoueur1.nomJoueur, T_NOM);
 	repJoueur1.err = ERR_OK;
 	repJoueur2.err = ERR_OK;
-	
+
 	err = send(sockTransJ1, &repJoueur1, sizeof(TPartieRep), 0);
 	if (err <= 0)
 	{
