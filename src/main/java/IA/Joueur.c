@@ -112,8 +112,6 @@ int main(int argc, char **argv)
 		
 
 	} while (Reponse.err != ERR_OK);
-	printf("ERROK ? %d\n",Reponse.err);
-	printf("valid %d ? \n",Reponse.validCoulPion);
 	if (Reponse.validCoulPion == KO)
 	{
 		printf("Changement de couleur :");
@@ -131,15 +129,22 @@ int main(int argc, char **argv)
 		}
 	}
 
-	int end = 0;
+	int nbPartie = 1;
 	printf("Debut de la partie\n");
-	while (end != 2)
+	int win = 0 ;
+	int loose = 0;
+	while (loose < 2 && win < 2)
 	{
 		TCoupReq RequeteC;
 		RequeteC.idRequest=COUP;
-		RequeteC.numPartie=0;
+		RequeteC.numPartie=nbPartie;
 		TPion Pion;
-		Pion.coulPion = NOIR;
+		Pion.coulPion = Requete.coulPion;
+		
+		
+		TCoupRep ReponseC;
+
+		// a modifier avec les coups
 		Pion.typePion =SPHERE;
 		RequeteC.pion=Pion;
 		RequeteC.estBloque = false;
@@ -149,7 +154,7 @@ int main(int argc, char **argv)
 		RequeteC.posPion = Case;
 		RequeteC.propCoup =CONT;
 
-		TCoupRep ReponseC;
+
 
 		/**** VALIDATION *****/
 		if (begin)
@@ -195,8 +200,18 @@ int main(int argc, char **argv)
 			}
 		}
 
+
+		//Fin d'une partie
 		if (ReponseC.propCoup != CONT)
 		{
+			if(ReponseC.propCoup == GAGNE){
+				win++;
+			}
+			else{
+				if(ReponseC.propCoup==PERDU){
+					loose++;
+				}
+			}
 			if (begin)
 			{
 				begin--;
@@ -205,7 +220,7 @@ int main(int argc, char **argv)
 			{
 				begin++;
 			}
-			end++;
+			nbPartie++;
 		}
 
 		/******* COMM MOTEUR ******/
