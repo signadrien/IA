@@ -195,7 +195,7 @@ int main(int argc, char **argv)
 	}
 	int ligne, colonne;
 	TPropCoup arbitrage;
-	bool isValid 
+	bool isValid ;
 	//Jeu
 	while (!fin)
 	{

@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 			{
 			case 'n':
 				Requete.coulPion = NOIR;
-				begin = 0 ;
+				begin = 0;
 				break;
 			case 'b':
 				Requete.coulPion = BLANC;
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 			close(sockServer);
 			return -5;
 		}
-		
+
 		err = recv(sockServer, &Reponse, sizeof(TPartieRep), 0);
 		if (err <= 0)
 		{
@@ -109,7 +109,6 @@ int main(int argc, char **argv)
 			close(sockServer);
 			return -6;
 		}
-		
 
 	} while (Reponse.err != ERR_OK);
 	if (Reponse.validCoulPion == KO)
@@ -119,46 +118,45 @@ int main(int argc, char **argv)
 		{
 			printf("Vous êtes noir\n");
 			Requete.coulPion = NOIR;
-			begin = 0;
+			begin = 1;
 		}
 		else
 		{
 			printf("Vous êtes blanc\n");
 			Requete.coulPion = BLANC;
-			begin = 1;
+			begin = 0;
 		}
 	}
 
 	int nbPartie = 1;
 	printf("Debut de la partie\n");
-	int win = 0 ;
+	int win = 0;
 	int loose = 0;
 	while (loose < 2 && win < 2)
 	{
 		TCoupReq RequeteC;
-		RequeteC.idRequest=COUP;
-		RequeteC.numPartie=nbPartie;
+		TCoupReq RequeteAdversaire;
+		RequeteC.idRequest = COUP;
+		RequeteC.numPartie = nbPartie;
 		TPion Pion;
 		Pion.coulPion = Requete.coulPion;
-		
-		
+
 		TCoupRep ReponseC;
 
 		// a modifier avec les coups
-		Pion.typePion =SPHERE;
-		RequeteC.pion=Pion;
+		Pion.typePion = SPHERE;
+		RequeteC.pion = Pion;
 		RequeteC.estBloque = false;
 		TCase Case;
 		Case.c = A;
 		Case.l = UN;
 		RequeteC.posPion = Case;
-		RequeteC.propCoup =CONT;
-
-
+		RequeteC.propCoup = CONT;
 
 		/**** VALIDATION *****/
-		if (begin)
+		switch (begin)
 		{
+		case 0:
 			printf("Mon tour\n");
 			//ASK MOTEUR NEXT COUP
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
@@ -170,6 +168,22 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -5;
 			}
+
+			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
+			if (err <= 0)
+			{
+				perror("(serveurTCP) erreur dans la reception");
+				shutdown(sockServer, SHUT_RDWR);
+				close(sockServer);
+				
+				return -6;
+			}
+
+			if(ReponseC.err != ERR_OK && ReponseC.validCoup != VALID && ReponseC.propCoup != CONT){
+				break;
+			}
+
+			//Le coup de l'adversaire est valid ?
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -178,8 +192,23 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
-		}
-		else {
+			if(ReponseC.err != ERR_OK && ReponseC.validCoup != VALID && ReponseC.propCoup != CONT){
+				break;
+			}
+			err = recv(sockServer, &RequeteAdversaire, sizeof(TCoupReq), 0);
+			if (err <= 0)
+			{
+				perror("(serveurTCP) erreur dans la reception");
+				shutdown(sockServer, SHUT_RDWR);
+				close(sockServer);
+				return -6;
+			}
+
+
+			break;
+		case 1:
+
+			//Le coup de l'adversaire est valid ?
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -188,7 +217,20 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
+			if(ReponseC.err != ERR_OK && ReponseC.validCoup != VALID && ReponseC.propCoup != CONT){
+				break;
+			}
+			err = recv(sockServer, &RequeteAdversaire, sizeof(TCoupReq), 0);
+			if (err <= 0)
+			{
+				perror("(serveurTCP) erreur dans la reception");
+				shutdown(sockServer, SHUT_RDWR);
+				close(sockServer);
+				return -6;
+			}
+
 			//ASK MOTEUR NEXT COUP
+
 			printf("Mon tour\n");
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
 			if (err <= 0)
@@ -198,17 +240,31 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -5;
 			}
-		}
 
+			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
+			if (err <= 0)
+			{
+				perror("(serveurTCP) erreur dans la reception");
+				shutdown(sockServer, SHUT_RDWR);
+				close(sockServer);
+				return -6;
+			}
+			break;
+			default:
+				printf("ERROR on Begin value");
+		}
 
 		//Fin d'une partie
 		if (ReponseC.propCoup != CONT)
 		{
-			if(ReponseC.propCoup == GAGNE){
+			if (ReponseC.propCoup == GAGNE)
+			{
 				win++;
 			}
-			else{
-				if(ReponseC.propCoup==PERDU){
+			else
+			{
+				if (ReponseC.propCoup == PERDU)
+				{
 					loose++;
 				}
 			}
