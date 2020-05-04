@@ -13,16 +13,16 @@ void afficherPlateau(TPion plateau[4][4])
 			{
 			case CYLINDRE:
 				printf("/ ");
-			break;
+				break;
 			case PAVE:
 				printf("_ ");
-			break;
+				break;
 			case SPHERE:
 				printf("O ");
-			break;
+				break;
 			case TETRAEDRE:
 				printf("Y ");
-			break;
+				break;
 			default:
 				printf("* ");
 			}
@@ -191,238 +191,466 @@ int main(int argc, char **argv)
 	int J1Win = 0;
 	int J2Win = 0;
 	int compteurPartie = 1;
+	bool inversion = false;
 	//Jeu
 	while (J1Win != 2 && J2Win != 2)
 	{
-		printf("Partie numéro %d\n",compteurPartie);
+		printf("Partie numéro %d\n", compteurPartie);
 		initialiserPartie();
 		while (!fin)
 		{
-		
-			//Attente d'un coup de joueur 1
-			printf("Attente du coup de joueur 1 %s\n", joueursName[0]);
-			err = recv(white, &reqCoup, sizeof(TCoupReq), 0);
-			switch (reqCoup.posPion.l)
+			if (!inversion)
 			{
-			case UN:
-			{
-				ligne = 0;
-			}
-			break;
-			case DEUX:
-			{
-				ligne = 1;
-			}
-			break;
-			case TROIS:
-			{
-				ligne = 2;
-			}
-			break;
-			case QUATRE:
-			{
-				ligne = 3;
-			}
-			break;
-			default:
-				printf("Error TLg\n");
-			}
-			switch (reqCoup.posPion.c)
-			{
-			case A:
-			{
-				colonne = 0;
-			}
-			break;
-			case B:
-			{
-				colonne = 1;
-			}
-			break;
-			case C:
-			{
-				colonne = 2;
-			}
-			break;
-			case D:
-			{
-				colonne = 3;
-			}
-			break;
-			default:
-				printf("Error TLg\n");
-			}
-			isValid = validationCoup(1, reqCoup, &arbitrage);
-			repCoupJ1.propCoup = arbitrage;
-			if (isValid)
-			{
-				repCoupJ1.validCoup = VALID;
-				repCoupJ2.validCoup = VALID;
-			}
-			if (!isValid || arbitrage != reqCoup.propCoup)
-			{
-				printf("Triche");
-				repCoupJ1.validCoup = TRICHE;
-				repCoupJ1.propCoup = PERDU;
-				repCoupJ2.validCoup = TRICHE;
-				repCoupJ2.propCoup = GAGNE;
-				J2Win++;
-				fin= true;
-				
-			}
-			repCoupJ1.err = ERR_OK;
-			repCoupJ2.err = ERR_OK;
+				printf("%d\n",compteurPartie%2);
+				//Attente d'un coup de joueur 1
+				printf("Attente du coup de joueur 1 %s\n", joueursName[0]);
+				err = recv(white, &reqCoup, sizeof(TCoupReq), 0);
+				switch (reqCoup.posPion.l)
+				{
+				case UN:
+				{
+					ligne = 0;
+				}
+				break;
+				case DEUX:
+				{
+					ligne = 1;
+				}
+				break;
+				case TROIS:
+				{
+					ligne = 2;
+				}
+				break;
+				case QUATRE:
+				{
+					ligne = 3;
+				}
+				break;
+				default:
+					printf("Error TLg\n");
+				}
+				switch (reqCoup.posPion.c)
+				{
+				case A:
+				{
+					colonne = 0;
+				}
+				break;
+				case B:
+				{
+					colonne = 1;
+				}
+				break;
+				case C:
+				{
+					colonne = 2;
+				}
+				break;
+				case D:
+				{
+					colonne = 3;
+				}
+				break;
+				default:
+					printf("Error TLg\n");
+				}
+				isValid = validationCoup(1, reqCoup, &arbitrage);
+				repCoupJ1.propCoup = arbitrage;
+				if (isValid)
+				{
+					repCoupJ1.validCoup = VALID;
+					repCoupJ2.validCoup = VALID;
+				}
+				if (!isValid || arbitrage != reqCoup.propCoup)
+				{
+					printf("Triche");
+					repCoupJ1.validCoup = TRICHE;
+					repCoupJ1.propCoup = PERDU;
+					repCoupJ2.validCoup = TRICHE;
+					repCoupJ2.propCoup = GAGNE;
+					J2Win++;
+					fin = true;
+				}
+				repCoupJ1.err = ERR_OK;
+				repCoupJ2.err = ERR_OK;
 
-			err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
-			if (err <= 0)
-			{
-				perror("(client) erreur sur le send");
-				shutdown(sockTransJ1, SHUT_RDWR);
-				close(sockTransJ1);
-				return -5;
-			}
-			err = send(sockTransJ2, &repCoupJ2, sizeof(TCoupRep), 0);
-			if (err <= 0)
-			{
-				perror("(client) erreur sur le send");
-				shutdown(sockTransJ2, SHUT_RDWR);
-				close(sockTransJ2);
-				return -5;
-			}
+				err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
+				if (err <= 0)
+				{
+					perror("(client) erreur sur le send");
+					shutdown(sockTransJ1, SHUT_RDWR);
+					close(sockTransJ1);
+					return -5;
+				}
+				err = send(sockTransJ2, &repCoupJ2, sizeof(TCoupRep), 0);
+				if (err <= 0)
+				{
+					perror("(client) erreur sur le send");
+					shutdown(sockTransJ2, SHUT_RDWR);
+					close(sockTransJ2);
+					return -5;
+				}
 
-			if(fin){
-				continue;
-			}
-			else{
-				err = send(sockTransJ2, &reqCoup, sizeof(TCoupReq), 0);
-			if (err <= 0)
-			{
-				perror("(client) erreur sur le send");
-				shutdown(sockTransJ2, SHUT_RDWR);
-				close(sockTransJ2);
-				return -5;
-			}
+				if (fin)
+				{
+					continue;
+				}
+				else
+				{
+					err = send(sockTransJ2, &reqCoup, sizeof(TCoupReq), 0);
+					if (err <= 0)
+					{
+						perror("(client) erreur sur le send");
+						shutdown(sockTransJ2, SHUT_RDWR);
+						close(sockTransJ2);
+						return -5;
+					}
+				}
+				//plateau[ligne][colonne] = reqCoup.pion;
+				//afficherPlateau(plateau);
+				printf("%s a joué, au tour de %s\n", joueursName[0], joueursName[1]);
 
-			}
-			//plateau[ligne][colonne] = reqCoup.pion;
-			//afficherPlateau(plateau);
-			printf("%s a joué, au tour de %s\n", joueursName[0], joueursName[1]);
+				//Tour du joueur 2
 
-			//Tour du joueur 2
+				printf("Attente du coup de joueur 2 %s\n", joueursName[1]);
+				err = recv(black, &reqCoup, sizeof(TCoupReq), 0);
+				switch (reqCoup.posPion.l)
+				{
+				case UN:
+				{
+					ligne = 0;
+				}
+				break;
+				case DEUX:
+				{
+					ligne = 1;
+				}
+				break;
+				case TROIS:
+				{
+					ligne = 2;
+				}
+				break;
+				case QUATRE:
+				{
+					ligne = 3;
+				}
+				break;
+				default:
+					printf("Error TLg\n");
+					exit(0);
+				}
+				switch (reqCoup.posPion.c)
+				{
+				case A:
+				{
+					colonne = 0;
+				}
+				break;
+				case B:
+				{
+					colonne = 1;
+				}
+				break;
+				case C:
+				{
+					colonne = 2;
+				}
+				break;
+				case D:
+				{
+					colonne = 3;
+				}
+				break;
+				default:
+					printf("Error TLg\n");
+					exit(0);
+				}
+				plateau[ligne][colonne] = reqCoup.pion;
+				afficherPlateau(plateau);
+				isValid = validationCoup(2, reqCoup, &arbitrage);
+				repCoupJ1.propCoup = arbitrage;
+				if (isValid)
+				{
+					repCoupJ1.validCoup = VALID;
+					repCoupJ2.validCoup = VALID;
+				}
+				if (!isValid || arbitrage != reqCoup.propCoup)
+				{
+					printf("Triche");
+					repCoupJ1.validCoup = TRICHE;
+					repCoupJ1.propCoup = GAGNE;
+					J1Win++;
+					repCoupJ2.validCoup = TRICHE;
+					repCoupJ2.propCoup = PERDU;
+					fin = true;
+				}
+				repCoupJ1.err = ERR_OK;
+				repCoupJ2.err = ERR_OK;
 
-			printf("Attente du coup de joueur 2 %s\n", joueursName[1]);
-			err = recv(black, &reqCoup, sizeof(TCoupReq), 0);
-			switch (reqCoup.posPion.l)
-			{
-			case UN:
-			{
-				ligne = 0;
-			}
-			break;
-			case DEUX:
-			{
-				ligne = 1;
-			}
-			break;
-			case TROIS:
-			{
-				ligne = 2;
-			}
-			break;
-			case QUATRE:
-			{
-				ligne = 3;
-			}
-			break;
-			default:
-				printf("Error TLg\n");
-				exit(0);
-			}
-			switch (reqCoup.posPion.c)
-			{
-			case A:
-			{
-				colonne = 0;
-			}
-			break;
-			case B:
-			{
-				colonne = 1;
-			}
-			break;
-			case C:
-			{
-				colonne = 2;
-			}
-			break;
-			case D:
-			{
-				colonne = 3;
-			}
-			break;
-			default:
-				printf("Error TLg\n");
-				exit(0);
-			}
-			plateau[ligne][colonne] = reqCoup.pion;
-			afficherPlateau(plateau);
-			isValid = validationCoup(2, reqCoup, &arbitrage);
-			repCoupJ1.propCoup = arbitrage;
-			if (isValid)
-			{
-				repCoupJ1.validCoup = VALID;
-				repCoupJ2.validCoup = VALID;
-			}
-			if (!isValid || arbitrage != reqCoup.propCoup)
-			{
-				printf("Triche");
-				repCoupJ1.validCoup = TRICHE;
-				repCoupJ1.propCoup = GAGNE;
-				J1Win++;
-				repCoupJ2.validCoup = TRICHE;
-				repCoupJ2.propCoup = PERDU;
-				fin = true;
-			}
-			repCoupJ1.err = ERR_OK;
-			repCoupJ2.err = ERR_OK;
+				err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
+				if (err <= 0)
+				{
+					perror("(client) erreur sur le send");
+					shutdown(sockTransJ1, SHUT_RDWR);
+					close(sockTransJ1);
+					return -5;
+				}
+				err = send(sockTransJ2, &repCoupJ2, sizeof(TCoupRep), 0);
+				if (err <= 0)
+				{
+					perror("(client) erreur sur le send");
+					shutdown(sockTransJ2, SHUT_RDWR);
+					close(sockTransJ2);
+					return -5;
+				}
 
-			err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
-			if (err <= 0)
-			{
-				perror("(client) erreur sur le send");
-				shutdown(sockTransJ1, SHUT_RDWR);
-				close(sockTransJ1);
-				return -5;
+				if (fin)
+				{
+					continue;
+				}
+				else
+				{
+					err = send(sockTransJ1, &reqCoup, sizeof(TCoupReq), 0);
+					if (err <= 0)
+					{
+						perror("(client) erreur sur le send");
+						shutdown(sockTransJ1, SHUT_RDWR);
+						close(sockTransJ1);
+						return -5;
+					}
+				}
 			}
-			err = send(sockTransJ2, &repCoupJ2, sizeof(TCoupRep), 0);
-			if (err <= 0)
+			else
 			{
-				perror("(client) erreur sur le send");
-				shutdown(sockTransJ2, SHUT_RDWR);
-				close(sockTransJ2);
-				return -5;
-			}
+				//Attente d'un coup de joueur 2
+				printf("Attente du coup de joueur 1 %s\n", joueursName[1]);
+				err = recv(black, &reqCoup, sizeof(TCoupReq), 0);
+				switch (reqCoup.posPion.l)
+				{
+				case UN:
+				{
+					ligne = 0;
+				}
+				break;
+				case DEUX:
+				{
+					ligne = 1;
+				}
+				break;
+				case TROIS:
+				{
+					ligne = 2;
+				}
+				break;
+				case QUATRE:
+				{
+					ligne = 3;
+				}
+				break;
+				default:
+					printf("Error TLg\n");
+				}
+				switch (reqCoup.posPion.c)
+				{
+				case A:
+				{
+					colonne = 0;
+				}
+				break;
+				case B:
+				{
+					colonne = 1;
+				}
+				break;
+				case C:
+				{
+					colonne = 2;
+				}
+				break;
+				case D:
+				{
+					colonne = 3;
+				}
+				break;
+				default:
+					printf("Error TLg\n");
+				}
+				isValid = validationCoup(1, reqCoup, &arbitrage);
+				repCoupJ1.propCoup = arbitrage;
+				if (isValid)
+				{
+					repCoupJ1.validCoup = VALID;
+					repCoupJ2.validCoup = VALID;
+				}
+				if (!isValid || arbitrage != reqCoup.propCoup)
+				{
+					printf("Triche");
+					repCoupJ1.validCoup = TRICHE;
+					repCoupJ1.propCoup = GAGNE;
+					repCoupJ2.validCoup = TRICHE;
+					repCoupJ2.propCoup = PERDU;
+					J1Win++;
+					fin = true;
+				}
+				repCoupJ1.err = ERR_OK;
+				repCoupJ2.err = ERR_OK;
 
-			if(fin){
-				continue;
-			}
-			else{
-				err = send(sockTransJ1, &reqCoup, sizeof(TCoupReq), 0);
-			if (err <= 0)
-			{
-				perror("(client) erreur sur le send");
-				shutdown(sockTransJ1, SHUT_RDWR);
-				close(sockTransJ1);
-				return -5;
-			}
+				err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
+				if (err <= 0)
+				{
+					perror("(client) erreur sur le send");
+					shutdown(sockTransJ1, SHUT_RDWR);
+					close(sockTransJ1);
+					return -5;
+				}
+				err = send(sockTransJ2, &repCoupJ2, sizeof(TCoupRep), 0);
+				if (err <= 0)
+				{
+					perror("(client) erreur sur le send");
+					shutdown(sockTransJ2, SHUT_RDWR);
+					close(sockTransJ2);
+					return -5;
+				}
 
+				if (fin)
+				{
+					continue;
+				}
+				else
+				{
+					err = send(sockTransJ1, &reqCoup, sizeof(TCoupReq), 0);
+					if (err <= 0)
+					{
+						perror("(client) erreur sur le send");
+						shutdown(sockTransJ1, SHUT_RDWR);
+						close(sockTransJ2);
+						return -5;
+					}
+				}
+				//plateau[ligne][colonne] = reqCoup.pion;
+				//afficherPlateau(plateau);
+				printf("%s a joué, au tour de %s\n", joueursName[1], joueursName[0]);
+
+				//Tour du joueur 2
+
+				printf("Attente du coup de joueur 2 %s\n", joueursName[0]);
+				err = recv(white, &reqCoup, sizeof(TCoupReq), 0);
+				switch (reqCoup.posPion.l)
+				{
+				case UN:
+				{
+					ligne = 0;
+				}
+				break;
+				case DEUX:
+				{
+					ligne = 1;
+				}
+				break;
+				case TROIS:
+				{
+					ligne = 2;
+				}
+				break;
+				case QUATRE:
+				{
+					ligne = 3;
+				}
+				break;
+				default:
+					printf("Error TLg\n");
+					exit(0);
+				}
+				switch (reqCoup.posPion.c)
+				{
+				case A:
+				{
+					colonne = 0;
+				}
+				break;
+				case B:
+				{
+					colonne = 1;
+				}
+				break;
+				case C:
+				{
+					colonne = 2;
+				}
+				break;
+				case D:
+				{
+					colonne = 3;
+				}
+				break;
+				default:
+					printf("Error TLg\n");
+					exit(0);
+				}
+				plateau[ligne][colonne] = reqCoup.pion;
+				afficherPlateau(plateau);
+				isValid = validationCoup(2, reqCoup, &arbitrage);
+				repCoupJ1.propCoup = arbitrage;
+				if (isValid)
+				{
+					repCoupJ1.validCoup = VALID;
+					repCoupJ2.validCoup = VALID;
+				}
+				if (!isValid || arbitrage != reqCoup.propCoup)
+				{
+					printf("Triche");
+					repCoupJ1.validCoup = TRICHE;
+					repCoupJ1.propCoup = PERDU;
+					J2Win++;
+					repCoupJ2.validCoup = TRICHE;
+					repCoupJ2.propCoup = GAGNE;
+					fin = true;
+				}
+				repCoupJ1.err = ERR_OK;
+				repCoupJ2.err = ERR_OK;
+
+				err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
+				if (err <= 0)
+				{
+					perror("(client) erreur sur le send");
+					shutdown(sockTransJ1, SHUT_RDWR);
+					close(sockTransJ1);
+					return -5;
+				}
+				err = send(sockTransJ2, &repCoupJ2, sizeof(TCoupRep), 0);
+				if (err <= 0)
+				{
+					perror("(client) erreur sur le send");
+					shutdown(sockTransJ2, SHUT_RDWR);
+					close(sockTransJ2);
+					return -5;
+				}
+
+				if (fin)
+				{
+					continue;
+				}
+				else
+				{
+					err = send(sockTransJ2, &reqCoup, sizeof(TCoupReq), 0);
+					if (err <= 0)
+					{
+						perror("(client) erreur sur le send");
+						shutdown(sockTransJ2, SHUT_RDWR);
+						close(sockTransJ1);
+						return -5;
+					}
+				}
 			}
 		}
-		
+
 		fin = false;
 		compteurPartie++;
-		printf("Score J1 : %d\n",J1Win);
-		printf("Score J2 : %d\n",J2Win);
+		inversion = !inversion;
+		printf("Score J1 : %d\n", J1Win);
+		printf("Score J2 : %d\n", J2Win);
 	}
 
 	/*
