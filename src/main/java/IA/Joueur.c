@@ -50,6 +50,29 @@ int main(int argc, char **argv)
 	* CLIENT avec VALIDATION
 	*
 	*/
+
+	TTypePion J1P[4];
+	TTypePion J2P[4];
+	J1P[0]=SPHERE;
+	J1P[1]=CYLINDRE;
+	J1P[2]=TETRAEDRE;
+	J1P[3]=PAVE;
+
+	J2P[0]=SPHERE;
+	J2P[1]=CYLINDRE;
+	J2P[2]=TETRAEDRE;
+	J2P[3]=PAVE;
+	TCase J1C[4];
+	TCase J2C[4];
+	J1C[0].c=A;J1C[0].l=UN;
+	J1C[1].c=B;J1C[1].l=DEUX;
+	J1C[2].c=C;J1C[2].l=TROIS;
+	J1C[3].c=D;J1C[3].l=QUATRE;
+
+	J2C[0].c=D;J2C[0].l=DEUX;
+	J2C[0].c=C;J2C[0].l=QUATRE;
+	J2C[0].c=A;J2C[0].l=DEUX;
+	J2C[0].c=A;J2C[0].l=TROIS;
 	int port = atoi(argv[1]);
 	char chaine[T_BUF];
 	int sockServer = socketClient("127.0.0.1", port);
@@ -132,6 +155,8 @@ int main(int argc, char **argv)
 	printf("Debut de la partie\n");
 	int win = 0;
 	int loose = 0;
+
+	int nbCoup=0;
 	while (loose < 2 && win < 2)
 	{
 		TCoupReq RequeteC;
@@ -144,15 +169,27 @@ int main(int argc, char **argv)
 		TCoupRep ReponseC;
 
 		// a modifier avec les coups
-		Pion.typePion = SPHERE;
-		RequeteC.pion = Pion;
-		RequeteC.estBloque = false;
-		TCase Case;
-		Case.c = A;
-		Case.l = UN;
-		RequeteC.posPion = Case;
-		RequeteC.propCoup = CONT;
+		if(Requete.coulPion==BLANC){
 
+			Pion.typePion = J1P[nbCoup];
+			RequeteC.pion = Pion;
+			RequeteC.estBloque = false;
+			RequeteC.posPion = J1C[nbCoup++];
+			if(nbCoup == 4 ){
+				RequeteC.propCoup=GAGNE;
+			}
+			else{
+				RequeteC.propCoup = CONT;
+			}
+
+		}
+		else{
+			Pion.typePion = J2P[nbCoup];
+			RequeteC.pion = Pion;
+			RequeteC.estBloque = false;
+			RequeteC.posPion = J2C[nbCoup++];
+			RequeteC.propCoup = CONT;
+		}
 		/**** VALIDATION *****/
 		switch (begin)
 		{
@@ -200,6 +237,7 @@ int main(int argc, char **argv)
 				break;
 			}
 			printf("COUP VALIDE.\n");
+			printf("Reception du coup de l'adversaire...\n");
 			err = recv(sockServer, &RequeteAdversaire, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -208,6 +246,7 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
+			printf("Coup reçu.");
 
 
 			break;
@@ -228,6 +267,7 @@ int main(int argc, char **argv)
 				break;
 			}
 			printf("COUP VALIDE.\n");
+			printf("Reception du coup de l'adversaire...\n");
 			err = recv(sockServer, &RequeteAdversaire, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -236,7 +276,7 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
-
+			printf("Coup reçu.");
 			//ASK MOTEUR NEXT COUP
 
 			printf("Mon tour\n");
@@ -289,6 +329,7 @@ int main(int argc, char **argv)
 			{
 				begin++;
 			}
+			nbCoup =0;
 			nbPartie++;
 		}
 
