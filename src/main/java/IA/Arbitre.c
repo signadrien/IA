@@ -12,24 +12,16 @@ void afficherPlateau(TPion plateau[4][4])
 			switch (plateau[j][i].typePion)
 			{
 			case CYLINDRE:
-			{
 				printf("/ ");
-			}
 			break;
 			case PAVE:
-			{
 				printf("_ ");
-			}
 			break;
 			case SPHERE:
-			{
 				printf("O ");
-			}
 			break;
 			case TETRAEDRE:
-			{
 				printf("Y ");
-			}
 			break;
 			default:
 				printf("* ");

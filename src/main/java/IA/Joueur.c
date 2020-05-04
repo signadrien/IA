@@ -78,11 +78,11 @@ int main(int argc, char **argv)
 			{
 			case 'n':
 				Requete.coulPion = NOIR;
-				begin = 0;
+				begin = 1;
 				break;
 			case 'b':
 				Requete.coulPion = BLANC;
-				begin = 1;
+				begin = 0;
 				break;
 			default:
 				printf("La couleur n'est pas possible.\n");
