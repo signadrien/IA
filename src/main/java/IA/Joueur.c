@@ -324,10 +324,12 @@ int main(int argc, char **argv)
 			if (begin)
 			{
 				begin--;
+				Requete.coulPion=BLANC;
 			}
 			else
 			{
 				begin++;
+				Requete.coulPion=NOIR;
 			}
 			nbCoup =0;
 			nbPartie++;
