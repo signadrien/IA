@@ -183,7 +183,8 @@ int main(int argc, char **argv)
 
 	bool fin = false;
 	TCoupReq reqCoup;
-	TCoupRep repCoup;
+	TCoupRep repCoupJ1;
+	TCoupRep repCoupJ2;
 	TPion plateau[4][4];
 	for (int i = 0; i < 4; i++)
 	{
@@ -193,6 +194,8 @@ int main(int argc, char **argv)
 		}
 	}
 	int ligne, colonne;
+	TPropCoup arbitrage;
+	bool isValid 
 	//Jeu
 	while (!fin)
 	{
@@ -250,23 +253,26 @@ int main(int argc, char **argv)
 		default:
 			printf("Error TLg\n");
 		}
-		TPropCoup arbitrage;
-		bool isValid = validationCoup(1, reqCoup, &arbitrage);
-		repCoup.propCoup = arbitrage;
+		isValid = validationCoup(1, reqCoup, &arbitrage);
+		repCoupJ1.propCoup = arbitrage;
 		if (isValid)
 		{
-			repCoup.validCoup = VALID;
+			repCoupJ1.validCoup = VALID;
+			repCoupJ2.validCoup = VALID;
 		}
 		if (!isValid || arbitrage != reqCoup.propCoup)
 		{
 			printf("Triche");
-			repCoup.validCoup = TRICHE;
-			repCoup.propCoup = PERDU;
+			repCoupJ1.validCoup = TRICHE;
+			repCoupJ1.propCoup = PERDU;
+			repCoupJ2.validCoup = TRICHE;
+			repCoupJ2.propCoup = GAGNE;
 
 		}
-		repCoup.err = ERR_OK;
+		repCoupJ1.err = ERR_OK;
+		repCoupJ2.err = ERR_OK;
 		
-		err = send(sockTransJ1, &repCoup, sizeof(TCoupRep), 0);
+		err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
 		if (err <= 0)
 		{
 			perror("(client) erreur sur le send");
@@ -274,7 +280,7 @@ int main(int argc, char **argv)
 			close(sockTransJ1);
 			return -5;
 		}
-		err = send(sockTransJ2, &repCoup, sizeof(TCoupRep), 0);
+		err = send(sockTransJ2, &repCoupJ2, sizeof(TCoupRep), 0);
 		if (err <= 0)
 		{
 			perror("(client) erreur sur le send");
@@ -344,6 +350,41 @@ int main(int argc, char **argv)
 		}
 		plateau[ligne][colonne] = reqCoup.pion;
 		afficherPlateau(plateau);
+				isValid = validationCoup(1, reqCoup, &arbitrage);
+		repCoupJ1.propCoup = arbitrage;
+		if (isValid)
+		{
+			repCoupJ1.validCoup = VALID;
+			repCoupJ2.validCoup = VALID;
+		}
+		if (!isValid || arbitrage != reqCoup.propCoup)
+		{
+			printf("Triche");
+			repCoupJ1.validCoup = TRICHE;
+			repCoupJ1.propCoup = PERDU;
+			repCoupJ2.validCoup = TRICHE;
+			repCoupJ2.propCoup = GAGNE;
+
+		}
+		repCoupJ1.err = ERR_OK;
+		repCoupJ2.err = ERR_OK;
+		
+		err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
+		if (err <= 0)
+		{
+			perror("(client) erreur sur le send");
+			shutdown(sockTransJ1, SHUT_RDWR);
+			close(sockTransJ1);
+			return -5;
+		}
+		err = send(sockTransJ2, &repCoupJ2, sizeof(TCoupRep), 0);
+		if (err <= 0)
+		{
+			perror("(client) erreur sur le send");
+			shutdown(sockTransJ2, SHUT_RDWR);
+			close(sockTransJ2);
+			return -5;
+		}
 	}
 
 	/*
