@@ -65,14 +65,14 @@ int main(int argc, char **argv)
 	TCase J1C[4];
 	TCase J2C[4];
 	J1C[0].c=A;J1C[0].l=UN;
-	J1C[1].c=B;J1C[1].l=DEUX;
-	J1C[2].c=C;J1C[2].l=TROIS;
-	J1C[3].c=D;J1C[3].l=QUATRE;
+	J1C[1].c=A;J1C[1].l=DEUX;
+	J1C[2].c=A;J1C[2].l=TROIS;
+	J1C[3].c=A;J1C[3].l=QUATRE;
 
-	J2C[0].c=D;J2C[0].l=DEUX;
-	J2C[0].c=C;J2C[0].l=QUATRE;
-	J2C[0].c=A;J2C[0].l=DEUX;
-	J2C[0].c=A;J2C[0].l=TROIS;
+	J2C[0].c=D;J2C[0].l=QUATRE;
+	J2C[1].c=D;J2C[1].l=TROIS;
+	J2C[2].c=D;J2C[2].l=DEUX;
+	J2C[3].c=D;J2C[3].l=UN;
 	int port = atoi(argv[1]);
 	char chaine[T_BUF];
 	int sockServer = socketClient("127.0.0.1", port);
@@ -157,14 +157,14 @@ int main(int argc, char **argv)
 	int loose = 0;
 
 	int nbCoup=0;
+	TPion Pion;
 	while (loose < 2 && win < 2)
 	{
 		TCoupReq RequeteC;
 		TCoupReq RequeteAdversaire;
 		RequeteC.idRequest = COUP;
 		RequeteC.numPartie = nbPartie;
-		TPion Pion;
-		Pion.coulPion = Requete.coulPion;
+		
 
 		TCoupRep ReponseC;
 
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 		}
 		else{
 			Pion.typePion = J2P[nbCoup];
-			RequeteC.pion = Pion;
+			
 			RequeteC.estBloque = false;
 			RequeteC.posPion = J2C[nbCoup++];
 			RequeteC.propCoup = CONT;
@@ -194,6 +194,9 @@ int main(int argc, char **argv)
 		switch (begin)
 		{
 		case 0:
+			printf("JE SUIS BLANC\n");
+			Pion.coulPion = BLANC;
+			RequeteC.pion = Pion;
 			printf("Mon tour\n");
 			//ASK MOTEUR NEXT COUP
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
@@ -246,11 +249,14 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
-			printf("Coup reçu.");
+			printf("Coup reçu.\n");
 
 
 			break;
 		case 1:
+			printf("Je suis noir");
+			Pion.coulPion = NOIR;
+			RequeteC.pion = Pion;
 
 			//Le coup de l'adversaire est valid ?
 			printf("Validation du coup de l'adversaire...\n");
@@ -276,7 +282,7 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
-			printf("Coup reçu.");
+			printf("Coup reçu.\n");
 			//ASK MOTEUR NEXT COUP
 
 			printf("Mon tour\n");
@@ -310,6 +316,8 @@ int main(int argc, char **argv)
 		//Fin d'une partie
 		if (ReponseC.propCoup != CONT)
 		{
+
+			printf("FIN DE PARTIE \n\n");
 			if (ReponseC.propCoup == GAGNE)
 			{
 				win++;
@@ -325,11 +333,13 @@ int main(int argc, char **argv)
 			{
 				begin--;
 				Requete.coulPion=BLANC;
+				printf("Je deviens blanc.\n");
 			}
 			else
 			{
 				begin++;
 				Requete.coulPion=NOIR;
+				printf("Je deviens noir.\n");
 			}
 			nbCoup =0;
 			nbPartie++;
