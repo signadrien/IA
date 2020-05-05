@@ -2,34 +2,6 @@
 #include "fonctionTCP.h"
 #include "validation.h"
 
-void afficherPlateau(TPion plateau[4][4])
-{
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-
-			switch (plateau[j][i].typePion)
-			{
-			case CYLINDRE:
-				printf("/ ");
-				break;
-			case PAVE:
-				printf("_ ");
-				break;
-			case SPHERE:
-				printf("O ");
-				break;
-			case TETRAEDRE:
-				printf("Y ");
-				break;
-			default:
-				printf("* ");
-			}
-		}
-		printf("\n");
-	}
-}
 
 int main(int argc, char **argv)
 {
@@ -179,15 +151,6 @@ int main(int argc, char **argv)
 	TCoupReq reqCoup;
 	TCoupRep repCoupJ1;
 	TCoupRep repCoupJ2;
-	TPion plateau[4][4];
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			plateau[j][i].typePion = 5;
-		}
-	}
-	int ligne, colonne;
 	TPropCoup arbitrage;
 	bool isValid;
 	int J1Win = 0;
@@ -235,62 +198,33 @@ int main(int argc, char **argv)
 			//Attente d'un coup de joueur 1
 			printf("Attente du coup de joueur 1 %s\n", joueursName[0]);
 			err = recv(sockTransJ1, &reqCoup, sizeof(TCoupReq), 0);
-			switch (reqCoup.posPion.l)
-			{
-			case UN:
-			{
-				ligne = 0;
-			}
-			break;
-			case DEUX:
-			{
-				ligne = 1;
-			}
-			break;
-			case TROIS:
-			{
-				ligne = 2;
-			}
-			break;
-			case QUATRE:
-			{
-				ligne = 3;
-			}
-			break;
-			default:
-				printf("Error TLg\n");
-			}
-			switch (reqCoup.posPion.c)
-			{
-			case A:
-			{
-				colonne = 0;
-			}
-			break;
-			case B:
-			{
-				colonne = 1;
-			}
-			break;
-			case C:
-			{
-				colonne = 2;
-			}
-			break;
-			case D:
-			{
-				colonne = 3;
-			}
-			break;
-			default:
-				printf("Error TLg\n");
-			}
 			isValid = validationCoup(1, reqCoup, &arbitrage);
 			repCoupJ1.propCoup = arbitrage;
 			if (isValid)
 			{
 				repCoupJ1.validCoup = VALID;
 				repCoupJ2.validCoup = VALID;
+				if(arbitrage == GAGNE){
+					printf("Joueur 1 gagne la manche\n");
+					repCoupJ1.propCoup = GAGNE;
+					repCoupJ2.propCoup = PERDU;
+					fin=true;
+					J1Win++;
+				}
+				if(arbitrage == PERDU){
+					printf("Joueur 2 gagne la manche\n");
+					repCoupJ1.propCoup = PERDU;
+					repCoupJ2.propCoup = GAGNE;
+					J2Win++;
+					fin=true;
+				}
+				if(arbitrage == NUL){
+					printf("Match nul\n");
+					repCoupJ1.propCoup = NUL;
+					repCoupJ2.propCoup = NUL;
+					fin = true;
+				}
+				
 			}
 			if (!isValid || arbitrage != reqCoup.propCoup)
 			{
@@ -342,68 +276,13 @@ int main(int argc, char **argv)
 					return -5;
 				}
 			}
-			//plateau[ligne][colonne] = reqCoup.pion;
-			//afficherPlateau(plateau);
 			printf("%s a joué, au tour de %s\n", joueursName[0], joueursName[1]);
 
 			//Tour du joueur 2
 
 			printf("Attente du coup de joueur 2 %s\n", joueursName[1]);
 			err = recv(sockTransJ2, &reqCoup, sizeof(TCoupReq), 0);
-			switch (reqCoup.posPion.l)
-			{
-			case UN:
-			{
-				ligne = 0;
-			}
-			break;
-			case DEUX:
-			{
-				ligne = 1;
-			}
-			break;
-			case TROIS:
-			{
-				ligne = 2;
-			}
-			break;
-			case QUATRE:
-			{
-				ligne = 3;
-			}
-			break;
-			default:
-				printf("Error TLg\n");
-				exit(0);
-			}
-			switch (reqCoup.posPion.c)
-			{
-			case A:
-			{
-				colonne = 0;
-			}
-			break;
-			case B:
-			{
-				colonne = 1;
-			}
-			break;
-			case C:
-			{
-				colonne = 2;
-			}
-			break;
-			case D:
-			{
-				colonne = 3;
-			}
-			break;
-			default:
-				printf("Error TLg\n");
-				exit(0);
-			}
-			plateau[ligne][colonne] = reqCoup.pion;
-			afficherPlateau(plateau);
+			
 			isValid = validationCoup(2, reqCoup, &arbitrage);
 			repCoupJ1.propCoup = arbitrage;
 			if (isValid)
