@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 	int compteurPartie = 1;
 	bool inversion = false;
 	//Jeu
-	while (J1Win != 2 && J2Win != 2)
+	while (compteurPartie <= 2)
 	{
 		printf("Partie numéro %d\n", compteurPartie);
 		initialiserPartie();
@@ -200,6 +200,7 @@ int main(int argc, char **argv)
 			err = recv(sockTransJ1, &reqCoup, sizeof(TCoupReq), 0);
 			isValid = validationCoup(1, reqCoup, &arbitrage);
 			repCoupJ1.propCoup = arbitrage;
+			repCoupJ2.propCoup = arbitrage;
 			if (isValid)
 			{
 				repCoupJ1.validCoup = VALID;
@@ -285,6 +286,7 @@ int main(int argc, char **argv)
 			
 			isValid = validationCoup(2, reqCoup, &arbitrage);
 			repCoupJ1.propCoup = arbitrage;
+			repCoupJ2.propCoup = arbitrage;
 			if (isValid)
 			{
 				repCoupJ1.validCoup = VALID;

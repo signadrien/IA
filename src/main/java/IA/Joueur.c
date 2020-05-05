@@ -153,12 +153,13 @@ int main(int argc, char **argv)
 
 	int nbPartie = 1;
 	printf("Debut de la partie\n");
-	int win = 0;
-	int loose = 0;
 
 	int nbCoup=0;
 	TPion Pion;
-	while (loose < 2 && win < 2)
+
+			Pion.coulPion = Requete.coulPion;
+			
+	while (nbPartie <= 2)
 	{
 		TCoupReq RequeteC;
 		TCoupReq RequeteAdversaire;
@@ -169,10 +170,10 @@ int main(int argc, char **argv)
 		TCoupRep ReponseC;
 
 		// a modifier avec les coups
-		if(Requete.coulPion==BLANC){
+		if(begin==0){
 
 			Pion.typePion = J1P[nbCoup];
-			RequeteC.pion = Pion;
+			
 			RequeteC.estBloque = false;
 			RequeteC.posPion = J1C[nbCoup++];
 			if(nbCoup == 4 ){
@@ -190,13 +191,11 @@ int main(int argc, char **argv)
 			RequeteC.posPion = J2C[nbCoup++];
 			RequeteC.propCoup = CONT;
 		}
+			RequeteC.pion = Pion;
 		/**** VALIDATION *****/
 		switch (begin)
 		{
 		case 0:
-			printf("JE SUIS BLANC\n");
-			Pion.coulPion = BLANC;
-			RequeteC.pion = Pion;
 			printf("Mon tour\n");
 			//ASK MOTEUR NEXT COUP
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
@@ -254,10 +253,6 @@ int main(int argc, char **argv)
 
 			break;
 		case 1:
-			printf("Je suis noir");
-			Pion.coulPion = NOIR;
-			RequeteC.pion = Pion;
-
 			//Le coup de l'adversaire est valid ?
 			printf("Validation du coup de l'adversaire...\n");
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
@@ -268,6 +263,7 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
+			printf("ERROK ? %d\nVALID ? %d\nPROPCOUP ? %d\n",ReponseC.err,ReponseC.validCoup,ReponseC.propCoup);
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
 				break;
@@ -314,32 +310,18 @@ int main(int argc, char **argv)
 		}
 
 		//Fin d'une partie
+		printf("%d",ReponseC.propCoup);
 		if (ReponseC.propCoup != CONT)
 		{
 
 			printf("FIN DE PARTIE \n\n");
-			if (ReponseC.propCoup == GAGNE)
-			{
-				win++;
-			}
-			else
-			{
-				if (ReponseC.propCoup == PERDU)
-				{
-					loose++;
-				}
-			}
-			if (begin)
+			if (begin==1)
 			{
 				begin--;
-				Requete.coulPion=BLANC;
-				printf("Je deviens blanc.\n");
 			}
 			else
 			{
 				begin++;
-				Requete.coulPion=NOIR;
-				printf("Je deviens noir.\n");
 			}
 			nbCoup =0;
 			nbPartie++;
