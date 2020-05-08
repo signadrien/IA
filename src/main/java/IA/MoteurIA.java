@@ -26,37 +26,8 @@ public class MoteurIA {
 			DataOutputStream DOS = new DataOutputStream(sock.getOutputStream());
 			while (nbPartie < 2) {
 				result = DIS.readInt();
-				if(result>1000){
-					nbPartie++;
-					for(int i = 0; i< 4;i++ ){
-						for(int j =0; j<4;j++){
-							plateau[j][i] = -1;
-							if(j<2)
-								reserve[j][i] = 2;
-						}
-					}
-					continue;
-				}
-				int type = result%10;
-				result/=10;
-				int colonne = result%10;
-				result/=10;
-				int ligne =  result;
-
-					//ask prolog
-
-					plateau[ligne][colonne] = type;
-					reserve[1][type]--;
-
-					int reponse = 0;
-					//compute response prolog
-
-					reserve[0][type]--;
-
-					DOS.writeInt(reponse);
-
-					int verification = DIS.readInt();
-					if(verification == 0){
+				if(result!=-1000){
+					if(result>1000){
 						nbPartie++;
 						for(int i = 0; i< 4;i++ ){
 							for(int j =0; j<4;j++){
@@ -65,7 +36,23 @@ public class MoteurIA {
 									reserve[j][i] = 2;
 							}
 						}
+						continue;
 					}
+					int type = result%10;
+					result/=10;
+					int colonne = result%10;
+					result/=10;
+					int ligne =  result;
+					plateau[ligne][colonne] = type;
+					reserve[1][type]--;
+				}
+					//ask prolog
+					int reponse = 0;
+					//compute response prolog
+
+					reserve[0][type]--;
+
+					DOS.writeInt(reponse);
 			}
 			sock.close();
 		} catch (Exception e) {

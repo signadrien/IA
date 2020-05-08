@@ -3,6 +3,79 @@
 
 #define T_BUF 20
 
+
+int ReqToInt(TCoupReq requete){
+	int res = 0;
+	switch(requete.pion.typePion){
+		case SPHERE :
+			res+=2;
+		break;
+		case PAVE :
+			res+=1;
+		break;
+		case TETRAEDRE :
+			res+=3;
+		break;
+		case CYLINDRE :
+			res+=0;
+		break;
+		default :
+			return 1000;
+	}
+	switch(requete.posPion.c){
+		case A :
+			res+=00;
+		break;
+		case B :
+			res+=10;
+		break;
+		case C :
+			res+=20;
+		break;
+		case D :
+			res+=30;
+		break;
+		default : 
+			return 1000;
+	}
+	switch(requete.posPion.l){
+		case UN :
+			res+=000;
+		break;
+		case DEUX :
+			res+=100;
+		break;
+		case TROIS :
+			res+=200;
+		break;
+		case QUATRE :
+			res+=300;
+		break;
+		default : 
+			return 1000;
+	}
+	return res;
+}
+
+
+void IntToReq(TCoupReq res, int requete){
+	if(requete>1000){
+		res.propCoup=GAGNE;
+	}
+	else{
+		res.propCoup = CONT;
+	}
+	if(requete<0){
+		res.propCoup = NUL;
+		requete*=-1;
+	}
+	res.pion.typePion = (TTypePion)requete%10;
+	requete/=10;
+	int colonne = requete%10;
+	requete/=10;
+	int ligne =  requete;
+}
+
 int main(int argc, char **argv)
 {
 
@@ -11,45 +84,6 @@ int main(int argc, char **argv)
 		printf("usage : %s port\n", argv[0]);
 		return -1;
 	}
-
-	/*
-	*
-	* SERVER avec MOTEURIA
-	*
-	*/
-
-	/*
-	int	sockTrans;
-	int	port = atoi(argv[1]);
-	int	sizeAddr;
-	int	err;
-	int	fin = 0;
-	int	entier1;
-	int	entier2;
-	int	res;
-	int	op;
-	char ope;
-	struct sockaddr_in addClient;
-	
-	int sockServ = socketServeur(port);
-	if (sockServ < 0){
-		printf("Erreur sur socket serveur\n");
-		return -2;
-	}
-
-	sizeAddr = sizeof(struct sockaddr_in);
-	sockTrans = accept(sockServ, (struct sockaddr *)&addClient, (socklen_t *)&sizeAddr);
-	if (sockTrans < 0) {
-		perror("(serveurTCP) erreur sur accept");
-		return -3;
-	}
-	*/
-
-	/*
-	*
-	* CLIENT avec VALIDATION
-	*
-	*/
 
 	TTypePion J1P[4];
 	TTypePion J2P[4];
@@ -81,6 +115,30 @@ int main(int argc, char **argv)
 		perror("(client) Erreur dans la connexion avec le serveur");
 		return -1;
 	}
+
+
+//JAVA C
+	int	sockJava;
+	struct sockaddr_in addClient;
+	
+	int sockServ = socketServeur(port);
+	if (sockServ < 0){
+		printf("Erreur sur socket serveur\n");
+		return -2;
+	}
+
+	int sizeAddr = sizeof(struct sockaddr_in);
+	sockJava = accept(sockServ, (struct sockaddr *)&addClient, (socklen_t *)&sizeAddr);
+	if (sockJava < 0) {
+		perror("(serveurTCP) erreur sur accept");
+		return -3;
+	}
+
+//END JAVA C
+
+
+
+
 	int continuer = 1;
 	char stop[T_BUF];
 	int err = 0;
@@ -102,10 +160,12 @@ int main(int argc, char **argv)
 			case 'n':
 				Requete.coulPion = NOIR;
 				begin = 1;
+				err =0;
 				break;
 			case 'b':
 				Requete.coulPion = BLANC;
 				begin = 0;
+				err =0;
 				break;
 			default:
 				printf("La couleur n'est pas possible.\n");
@@ -158,7 +218,8 @@ int main(int argc, char **argv)
 	TPion Pion;
 
 			Pion.coulPion = Requete.coulPion;
-			
+	int tojava =-1000;
+	int nbtour =0;
 	while (nbPartie <= 2)
 	{
 		TCoupReq RequeteC;
@@ -197,6 +258,12 @@ int main(int argc, char **argv)
 		{
 		case 0:
 			printf("Mon tour\n");
+			if(nbtour==0){
+				int res = htonl(-1000);
+				err = send(sockJava,&res,sizeof(int),0);
+				res = ntohl(res);
+				nbtour++;
+			}
 			//ASK MOTEUR NEXT COUP
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
 			printf("COUP ENVOYE\n");
@@ -220,6 +287,10 @@ int main(int argc, char **argv)
 
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE\n");
+				nbtour=0;
+				int res = htonl(1000);
+				err = send(sockJava,&res,sizeof(int),0);
+				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -236,6 +307,10 @@ int main(int argc, char **argv)
 			}
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
+				nbtour=0;
+				int res = htonl(1000);
+				err = send(sockJava,&res,sizeof(int),0);
+				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -266,6 +341,10 @@ int main(int argc, char **argv)
 			printf("ERROK ? %d\nVALID ? %d\nPROPCOUP ? %d\n",ReponseC.err,ReponseC.validCoup,ReponseC.propCoup);
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
+				nbtour=0;
+				int res = htonl(1000);
+				err = send(sockJava,&res,sizeof(int),0);
+				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -301,6 +380,10 @@ int main(int argc, char **argv)
 			}
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
+				nbtour=0;
+				int res = htonl(1000);
+				err = send(sockJava,&res,sizeof(int),0);
+				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -313,7 +396,10 @@ int main(int argc, char **argv)
 		printf("%d",ReponseC.propCoup);
 		if (ReponseC.propCoup != CONT)
 		{
-
+			nbtour=0;
+			int res = htonl(1000);
+			err = send(sockJava,&res,sizeof(int),0);
+			res = ntohl(res);
 			printf("FIN DE PARTIE \n\n");
 			if (begin==1)
 			{
