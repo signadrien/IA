@@ -14,6 +14,7 @@
 
 #ifndef _VALIDATION_H
 #define _VALIDATION_H
+#include "ProtoQuantik.h"
 
 /* Validation d'un coup :
  * parametres : 
