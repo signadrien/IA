@@ -82,3 +82,33 @@ fonction(L,L2,Res):-
     testCarre(L,Li,Co,T),
     Res = [Li,Co,T].
 
+
+isGagnant(L, Li, Co, Pion):-
+    testLigneGagnant(L,Li,Pion).
+
+testLigneGagnant(L,Li,T) :-
+    E is Li*4,
+    nth0(E,L,I),
+    I=\= -1,
+    F is Li*4+1,
+    nth0(F,L,I),
+    I=\= -1,
+    G is Li*4+2,
+    nth0(G,L,I),
+    I=\= -1,
+    H is Li*4+3,
+    nth0(H,L,I),
+    I=\= -1.
+
+testColonneGagnant(L,Co,T) :-
+    nth0(Co,L,I),
+    I=\= -1,
+    E is Co+4,
+    nth0(E,L,I),
+    I=\= -1,
+    F is Co+8,
+    nth0(F,L,I),
+    I=\= -1,
+    G is Co+12,
+    nth0(G,L,I),
+    I=\= -1.
