@@ -212,7 +212,6 @@ int main(int argc, char **argv)
 	TPion Pion;
 
 			Pion.coulPion = Requete.coulPion;
-	int tojava =-1000;
 	int nbtour =0;
 	TCoupReq RequeteTest;
 	while (nbPartie <= 2)
@@ -294,10 +293,6 @@ int main(int argc, char **argv)
 
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE\n");
-				nbtour=0;
-				int res = htonl(1000);
-				err = send(sockJava,&res,sizeof(int),0);
-				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -314,10 +309,6 @@ int main(int argc, char **argv)
 			}
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
-				nbtour=0;
-				int res = htonl(1000);
-				err = send(sockJava,&res,sizeof(int),0);
-				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -353,10 +344,6 @@ int main(int argc, char **argv)
 			printf("ERROK ? %d\nVALID ? %d\nPROPCOUP ? %d\n",ReponseC.err,ReponseC.validCoup,ReponseC.propCoup);
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
-				nbtour=0;
-				int res = htonl(1000);
-				err = send(sockJava,&res,sizeof(int),0);
-				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -406,10 +393,6 @@ int main(int argc, char **argv)
 			}
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
-				nbtour=0;
-				int res = htonl(1000);
-				err = send(sockJava,&res,sizeof(int),0);
-				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -438,89 +421,6 @@ int main(int argc, char **argv)
 			nbCoup =0;
 			nbPartie++;
 		}
-
-		/******* COMM MOTEUR ******/
-
-		/* err = 0;
-		while(err<4) {
-			err = recv(sockTrans, &entier1, sizeof(int), MSG_PEEK);
-		}
-		err = recv(sockTrans, &entier1, sizeof(int), 0);
-		
-		if (err <= 0) {
-			perror("(serveurTCP) erreur dans la reception");
-			shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
-			return -4;
-		}
-		entier1 = ntohl(entier1);
-
-		err = 0;
-		while(err<4) {
-			err = recv(sockTrans, &op, sizeof(int), MSG_PEEK);
-		}
-		err = recv(sockTrans, &op, sizeof(int), 0);
-		
-		if (err <= 0) {
-			perror("(serveurTCP) erreur dans la reception");
-			shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
-			return -4;
-		}
-		
-		op = ntohl(op);
-		ope = (char) op;
-
-		err = 0;
-		while(err<4) {
-		 err = recv(sockTrans, &entier2, sizeof(int), MSG_PEEK);
-		}
-		err = recv(sockTrans, &entier2, sizeof(int), 0);
-		
-		if (err <= 0) {
-			perror("(serveurTCP) erreur dans la reception");
-			shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
-			return -4;
-		}
-		
-		entier2 = ntohl(entier2);
-
-		switch (ope) {
-			case '+':
-				res = entier1 + entier2;
-				printf("%d + %d = %d\n",entier1,entier2,res);
-				break;
-			case '-':
-				res = entier1 - entier2;
-				printf("%d - %d = %d\n",entier1,entier2,res);
-				break;
-			case '*':
-				res = entier1*entier2;
-				printf("%d * %d = %d\n",entier1,entier2,res);
-				break;
-			case '/':
-				res = (int)(entier1/entier2);
-				printf("%d / %d = %d\n",entier1,entier2,res);
-				break;
-						      
-			default:
-				res = -1;
-				break;
-		}
-		res = htonl(res);
-		err = send(sockTrans,&res,sizeof(int),0);
-		res = ntohl(res);
-		
-		err = 0;
-		while(err<4) {
-			err = recv(sockTrans, &fin, sizeof(int), MSG_PEEK);
-		}
-		err = recv(sockTrans, &fin, sizeof(int), 0);
-		fin = ntohl(fin);
-		if (err <= 0) {
-			perror("(serveurTCP) erreur dans la reception");
-			shutdown(sockTrans, SHUT_RDWR); close(sockTrans);
-			return -4;
-		}
-		*/
 	}
 
 	/**** MOTEUR IA ***/
