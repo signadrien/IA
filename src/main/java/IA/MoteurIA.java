@@ -27,7 +27,7 @@ public class MoteurIA {
 			while (nbPartie < 2) {
 				int result = DIS.readInt();
 				if(result!=-1000){
-					if(result>1000){
+					if(result>=1000){
 						nbPartie++;
 						for(int i = 0; i< 4;i++ ){
 							for(int j =0; j<4;j++){
