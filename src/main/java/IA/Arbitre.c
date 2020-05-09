@@ -1,7 +1,7 @@
 
 #include "fonctionTCP.h"
 #include "validation.h"
-
+#include "sys/time.h"
 
 int main(int argc, char **argv)
 {
@@ -11,29 +11,38 @@ int main(int argc, char **argv)
 		printf("usage : %s port\n", argv[0]);
 		return -1;
 	}
-	char *joueursName[2];
+
+	fd_set readSet;		  //Descripteurs pour select
+	struct timeval delai; //timer de 5 sec
+	delai.tv_sec = 5;
+	delai.tv_usec = 0;
+
+	char *joueursName[2]; //Tableau contenant les pseudos des deux joueurs
 	int port = atoi(argv[1]);
-	int sockTransJ1;
-	int sockTransJ2;
+	int sockTransJ1; //Socket de transmission du joueur 1
+	int sockTransJ2; //Socket de transmission du joueur 2
 	int sizeAddr;
-	int err;
+	int err; // Sert à check si des erreurs se sont produites
 	struct sockaddr_in addClient;
-	printf("Attente de la connexion du premier joueur...\n");
-	int sockServ = socketServeur(port);
+	int sockServ = socketServeur(port); // Initialisation de la socket de Connexion
 	sizeAddr = sizeof(struct sockaddr_in);
-	TPartieReq reqJoueur1;
-	TPartieRep repJoueur1;
-	TPartieReq reqJoueur2;
-	TPartieRep repJoueur2;
-	//Joueur 1
+
+	TPartieReq reqJoueur1; //Requête du joueur 1
+	TPartieRep repJoueur1; //Réponse pour le joueur 1
+	TPartieReq reqJoueur2; //Requête du joueur 2
+	TPartieRep repJoueur2; //Réponse pour le joueur 2
+
 	int white; //socket du joueur blanc
 	int black; //socket du joueur noir
+	printf("Attente de la connexion du premier joueur...\n");
+	//Accepte la demande de connexion du premier joueur
 	sockTransJ1 = accept(sockServ, (struct sockaddr *)&addClient, (socklen_t *)&sizeAddr);
 	if (sockTransJ1 < 0)
 	{
 		perror("(serveurTCP) erreur sur accept");
 		return -5;
 	}
+	//Attente de sa requête TPartieReq
 	printf("Réception requête joueur 1\n");
 	err = recv(sockTransJ1, &reqJoueur1, sizeof(TPartieReq), 0);
 	if (err <= 0)
@@ -55,7 +64,7 @@ int main(int argc, char **argv)
 		printf("Joueur 1 a la couleur noire\n");
 		joueursName[1] = reqJoueur1.nomJoueur;
 	}
-
+	// La validation de couleur du joueur 1 est toujours OK
 	repJoueur1.validCoulPion = OK;
 
 	//Joueur 2
@@ -67,6 +76,7 @@ int main(int argc, char **argv)
 		return -5;
 	}
 	printf("Réception de la requête du joueur 2\n");
+	//Réception de la requête
 	err = recv(sockTransJ2, &reqJoueur2, sizeof(TPartieReq), 0);
 	if (err <= 0)
 	{
@@ -75,33 +85,45 @@ int main(int argc, char **argv)
 		close(sockTransJ2);
 		return -6;
 	}
+	//Si la couleur est déjà choisie
 	if (reqJoueur1.coulPion == reqJoueur2.coulPion)
 	{
 		printf("Joueur 1 a déjà choisie cette couleur, donc Joueur 2 a ");
+		//Code KO
 		repJoueur2.validCoulPion = KO;
 	}
+	//Sinon
 	else
 	{
 		printf("Joueur 2 a ");
 		repJoueur2.validCoulPion = OK;
 	}
+	//Si la couleur est modifié, alors
 	if (repJoueur2.validCoulPion == KO)
 	{
+		//Si le joueur 1 à la couleur blanche
 		if (reqJoueur1.coulPion == BLANC)
 		{
+			//Le joueur deux à la couleur noire
 			black = sockTransJ2;
+			//On rempli la structure de réponse
 			reqJoueur2.coulPion = NOIR;
 			printf("la couleur noire\n");
+			//On rempli le tableau de pseudo
 			joueursName[1] = reqJoueur2.nomJoueur;
 		}
+		//Si il a la couleur noire
 		else
 		{
+			//Le joueur deux à la couleur blanche
 			white = sockTransJ2;
+			//On remplie la structure de réponse
 			reqJoueur2.coulPion = BLANC;
 			printf("la couleur blanche\n");
 			joueursName[0] = reqJoueur2.nomJoueur;
 		}
 	}
+	//Sinon si la validation de couleur est OK, on rempli la structure de réponse et le tableau des pseudos en fonction
 	else
 	{
 		if (reqJoueur2.coulPion == BLANC)
@@ -118,7 +140,10 @@ int main(int argc, char **argv)
 		}
 	}
 
-	//Envoie au joueurs la réponse
+
+	int nfsd = 6;
+
+	//Envoie au joueurs la réponse de leur requête, indiquant quelle couleurs ils ont
 	memcpy(repJoueur1.nomAdvers, reqJoueur2.nomJoueur, T_NOM);
 	memcpy(repJoueur2.nomAdvers, reqJoueur1.nomJoueur, T_NOM);
 	repJoueur1.err = ERR_OK;
@@ -147,23 +172,25 @@ int main(int argc, char **argv)
 
 	printf("%s commence la partie.\n", joueursName[0]);
 
-	bool fin = false;
-	TCoupReq reqCoup;
-	TCoupRep repCoupJ1;
-	TCoupRep repCoupJ2;
-	TPropCoup arbitrage;
-	bool isValid;
-	int J1Win = 0;
-	int J2Win = 0;
-	char *tempoName;
-	int temporaireWin;
-	int compteurPartie = 1;
-	bool inversion = false;
+	bool fin = false;		//Booléen pour savoir si la manche est finie
+	TCoupReq reqCoup;		//Variable stockants les requêtes des 2 joueurs
+	TCoupRep repCoupJ1;		//Réponse pour le joueur 1
+	TCoupRep repCoupJ2;		//Réponse pour le joueur 2
+	TPropCoup arbitrage;	// Propriété du coup donné par un joueur après l'arbitrage
+	bool isValid;			// Booléen si le coup donné est valide
+	int J1Win = 0;			// Nombre de victoire du joueur 1
+	int J2Win = 0;			// Nombre de victoire du joueur 2
+	char *tempoName;		//Variable temporaire lors du changement entre la partie
+	int temporaireWin;		// De même
+	int compteurPartie = 1; // Nombre de partie
+	bool inversion = false; //Inversion des deux joueurs initialisé à faux
 	//Jeu
 	while (compteurPartie <= 2)
 	{
+		FD_ZERO(&readSet);
 		printf("Partie numéro %d\n", compteurPartie);
 		initialiserPartie();
+		//Le joueur 1 change en fonction de la manche
 		if (!inversion)
 		{
 			printf("Les blancs commencent\n");
@@ -191,55 +218,93 @@ int main(int argc, char **argv)
 			sockTransJ1 = black;
 			sockTransJ2 = white;
 			printf("Les noirs commencent\n");
-			printf("%d\n", fin);
 		}
 		while (!fin)
 		{
 			//Attente d'un coup de joueur 1
 			printf("Attente du coup de joueur 1 %s\n", joueursName[0]);
-			err = recv(sockTransJ1, &reqCoup, sizeof(TCoupReq), 0);
-			isValid = validationCoup(1, reqCoup, &arbitrage);
-			repCoupJ1.propCoup = arbitrage;
-			repCoupJ2.propCoup = arbitrage;
-			if (isValid)
+
+			delai.tv_sec = 5;
+			delai.tv_usec = 0;
+			FD_SET(sockTransJ1, &readSet);
+			err = select(nfsd, &readSet, NULL, NULL, &delai);
+			if (err < 0)
 			{
-				repCoupJ1.validCoup = VALID;
-				repCoupJ2.validCoup = VALID;
-				if(arbitrage == GAGNE){
-					printf("Joueur 1 gagne la manche\n");
-					repCoupJ1.propCoup = GAGNE;
-					repCoupJ2.propCoup = PERDU;
-					fin=true;
-					J1Win++;
+				perror("Erreur dans le select\n");
+				shutdown(sockTransJ1, SHUT_RDWR);
+				close(sockTransJ1);
+
+				shutdown(sockTransJ2, SHUT_RDWR);
+				close(sockTransJ2);
+				return -5;
+			}
+			if (FD_ISSET(sockTransJ1, &readSet) != 0)
+			{
+				err = recv(sockTransJ1, &reqCoup, sizeof(TCoupReq), 0);
+				if (err < 0)
+				{
+					perror("Erreur recv coup joueur 1\n");
+					shutdown(sockTransJ1, SHUT_RDWR);
+					close(sockTransJ1);
 				}
-				if(arbitrage == PERDU){
-					printf("Joueur 2 gagne la manche\n");
+				isValid = validationCoup(1, reqCoup, &arbitrage);
+				repCoupJ1.propCoup = arbitrage;
+				repCoupJ2.propCoup = arbitrage;
+				if (isValid)
+				{
+					repCoupJ1.validCoup = VALID;
+					repCoupJ2.validCoup = VALID;
+					if (arbitrage == GAGNE)
+					{
+						printf("Joueur 1 gagne la manche\n");
+						repCoupJ1.propCoup = GAGNE;
+						repCoupJ2.propCoup = PERDU;
+						fin = true;
+						J1Win++;
+					}
+					if (arbitrage == PERDU)
+					{
+						printf("Joueur 2 gagne la manche\n");
+						repCoupJ1.propCoup = PERDU;
+						repCoupJ2.propCoup = GAGNE;
+						J2Win++;
+						fin = true;
+					}
+					if (arbitrage == NUL)
+					{
+						printf("Match nul\n");
+						repCoupJ1.propCoup = NUL;
+						repCoupJ2.propCoup = NUL;
+						fin = true;
+					}
+				}
+				if (!isValid || arbitrage != reqCoup.propCoup)
+				{
+					printf("Triche");
+					repCoupJ1.validCoup = TRICHE;
 					repCoupJ1.propCoup = PERDU;
+					repCoupJ2.validCoup = TRICHE;
 					repCoupJ2.propCoup = GAGNE;
 					J2Win++;
-					fin=true;
-				}
-				if(arbitrage == NUL){
-					printf("Match nul\n");
-					repCoupJ1.propCoup = NUL;
-					repCoupJ2.propCoup = NUL;
 					fin = true;
 				}
-				
+				repCoupJ1.err = ERR_OK;
+				repCoupJ2.err = ERR_OK;
 			}
-			if (!isValid || arbitrage != reqCoup.propCoup)
+			else
 			{
-				printf("Triche");
+				printf("Rien reçu\n");
 				repCoupJ1.validCoup = TRICHE;
 				repCoupJ1.propCoup = PERDU;
 				repCoupJ2.validCoup = TRICHE;
 				repCoupJ2.propCoup = GAGNE;
+				repCoupJ1.err = ERR_OK;
+				repCoupJ2.err = ERR_OK;
 				J2Win++;
 				fin = true;
 			}
-			repCoupJ1.err = ERR_OK;
-			repCoupJ2.err = ERR_OK;
-
+			FD_CLR(sockTransJ1,&readSet);
+			FD_SET(sockTransJ2, &readSet);
 			printf("Envoie au joueur 1 la réponse à sa requête\n");
 
 			err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
@@ -280,31 +345,86 @@ int main(int argc, char **argv)
 			printf("%s a joué, au tour de %s\n", joueursName[0], joueursName[1]);
 
 			//Tour du joueur 2
-
+			delai.tv_sec = 5;
+			delai.tv_usec = 0;
 			printf("Attente du coup de joueur 2 %s\n", joueursName[1]);
-			err = recv(sockTransJ2, &reqCoup, sizeof(TCoupReq), 0);
-			
-			isValid = validationCoup(2, reqCoup, &arbitrage);
-			repCoupJ1.propCoup = arbitrage;
-			repCoupJ2.propCoup = arbitrage;
-			if (isValid)
+			err = select(nfsd, &readSet, NULL, NULL, &delai);
+			if (err < 0)
 			{
-				repCoupJ1.validCoup = VALID;
-				repCoupJ2.validCoup = VALID;
+				perror("Erreur dans le select\n");
+				shutdown(sockTransJ1, SHUT_RDWR);
+				close(sockTransJ1);
+
+				shutdown(sockTransJ2, SHUT_RDWR);
+				close(sockTransJ2);
+				return -5;
 			}
-			if (!isValid || arbitrage != reqCoup.propCoup)
+			if (FD_ISSET(sockTransJ2, &readSet) != 0)
 			{
-				printf("Triche");
+				err = recv(sockTransJ2, &reqCoup, sizeof(TCoupReq), 0);
+				if (err < 0)
+				{
+					perror("Erreur recv coup joueur 1\n");
+					shutdown(sockTransJ2, SHUT_RDWR);
+					close(sockTransJ2);
+				}
+				isValid = validationCoup(2, reqCoup, &arbitrage);
+				repCoupJ1.propCoup = arbitrage;
+				repCoupJ2.propCoup = arbitrage;
+				if (isValid)
+				{
+					repCoupJ1.validCoup = VALID;
+					repCoupJ2.validCoup = VALID;
+					if (arbitrage == GAGNE)
+					{
+						printf("Joueur 2 gagne la manche\n");
+						repCoupJ1.propCoup = PERDU;
+						repCoupJ2.propCoup = GAGNE;
+						fin = true;
+						J1Win++;
+					}
+					if (arbitrage == PERDU)
+					{
+						printf("Joueur 1 gagne la manche\n");
+						repCoupJ1.propCoup = GAGNE;
+						repCoupJ2.propCoup = PERDU;
+						J2Win++;
+						fin = true;
+					}
+					if (arbitrage == NUL)
+					{
+						printf("Match nul\n");
+						repCoupJ1.propCoup = NUL;
+						repCoupJ2.propCoup = NUL;
+						fin = true;
+					}
+				}
+				if (!isValid || arbitrage != reqCoup.propCoup)
+				{
+					printf("Triche");
+					repCoupJ1.validCoup = TRICHE;
+					repCoupJ1.propCoup = GAGNE;
+					J1Win++;
+					repCoupJ2.validCoup = TRICHE;
+					repCoupJ2.propCoup = PERDU;
+					fin = true;
+				}
+				repCoupJ1.err = ERR_OK;
+				repCoupJ2.err = ERR_OK;
+			}else
+			{
+				printf("Rien reçu\n");
 				repCoupJ1.validCoup = TRICHE;
-				repCoupJ1.propCoup = GAGNE;
-				J1Win++;
+				repCoupJ1.propCoup = PERDU;
 				repCoupJ2.validCoup = TRICHE;
-				repCoupJ2.propCoup = PERDU;
+				repCoupJ2.propCoup = GAGNE;
+				repCoupJ1.err = ERR_OK;
+				repCoupJ2.err = ERR_OK;
+				J2Win++;
 				fin = true;
 			}
-			repCoupJ1.err = ERR_OK;
-			repCoupJ2.err = ERR_OK;
 
+			FD_CLR(sockTransJ2,&readSet);
 			printf("Envoie au joueur 1 la réponse à la requête du joueur 2\n");
 			err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
 			if (err <= 0)

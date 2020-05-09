@@ -12,6 +12,7 @@ LD_FLAGS =
 
 all: joueur arbitre MoteurIA.class
 
+<<<<<<< Updated upstream
 run : all
 	konsole -e ./arbitre 5767&
 	konsole -e ./joueur 5767&
@@ -21,6 +22,14 @@ run : all
 
 MoteurIA.class: MoteurIA.java
 	javac MoteurIA.java
+=======
+run :
+	gnome-terminal -- ./arbitre 5000&
+	gnome-terminal -- ./joueur 5000&
+	gnome-terminal -- java MoteurIA 127.0.0.1 5001&
+	gnome-terminal -- ./joueur 5000&
+	gnome-terminal -- java MoteurIA 127.0.0.1 5002
+>>>>>>> Stashed changes
 
 fonctionTCP.o: fonctionTCP.c fonctionTCP.h
 	gcc -c -o fonctionTCP.o fonctionTCP.c $(LD_FLAGS)
