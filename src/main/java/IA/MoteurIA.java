@@ -1,4 +1,3 @@
-package IA;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.ServerSocket;
@@ -20,12 +19,13 @@ public class MoteurIA {
 		}
 		addr = args[0];
 		port = Integer.parseInt(args[1]);
+		int type=0;
 		try{
 			Socket sock = new Socket(addr,port);
 			DataInputStream DIS = new DataInputStream(sock.getInputStream());
 			DataOutputStream DOS = new DataOutputStream(sock.getOutputStream());
 			while (nbPartie < 2) {
-				result = DIS.readInt();
+				int result = DIS.readInt();
 				if(result!=-1000){
 					if(result>1000){
 						nbPartie++;
@@ -38,7 +38,7 @@ public class MoteurIA {
 						}
 						continue;
 					}
-					int type = result%10;
+					type = result%10;
 					result/=10;
 					int colonne = result%10;
 					result/=10;

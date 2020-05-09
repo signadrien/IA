@@ -4,9 +4,9 @@
 #define T_BUF 20
 
 
-int ReqToInt(TCoupReq requete){
+int ReqToInt(TCoupReq *requete){
 	int res = 0;
-	switch(requete.pion.typePion){
+	switch(requete->pion.typePion){
 		case SPHERE :
 			res+=2;
 		break;
@@ -22,7 +22,7 @@ int ReqToInt(TCoupReq requete){
 		default :
 			return 1000;
 	}
-	switch(requete.posPion.c){
+	switch(requete->posPion.c){
 		case A :
 			res+=00;
 		break;
@@ -38,7 +38,7 @@ int ReqToInt(TCoupReq requete){
 		default : 
 			return 1000;
 	}
-	switch(requete.posPion.l){
+	switch(requete->posPion.l){
 		case UN :
 			res+=000;
 		break;
@@ -58,22 +58,22 @@ int ReqToInt(TCoupReq requete){
 }
 
 
-void IntToReq(TCoupReq res, int requete){
+void IntToReq(TCoupReq *res, int requete){
 	if(requete>1000){
-		res.propCoup=GAGNE;
+		res->propCoup=GAGNE;
 	}
 	else{
-		res.propCoup = CONT;
+		res->propCoup = CONT;
 	}
 	if(requete<0){
-		res.propCoup = NUL;
+		res->propCoup = NUL;
 		requete*=-1;
 	}
-	res.pion.typePion = (TTypePion)requete%10;
+	res->pion.typePion = (TTypePion)requete%10;
 	requete/=10;
-	int colonne = requete%10;
+	res->posPion.c  = requete%10;
 	requete/=10;
-	int ligne =  requete;
+	res->posPion.l =  requete;
 }
 
 int main(int argc, char **argv)
@@ -108,7 +108,6 @@ int main(int argc, char **argv)
 	J2C[2].c=D;J2C[2].l=DEUX;
 	J2C[3].c=D;J2C[3].l=UN;
 	int port = atoi(argv[1]);
-	char chaine[T_BUF];
 	int sockServer = socketClient("127.0.0.1", port);
 	if (sockServer <= 0)
 	{
@@ -118,14 +117,14 @@ int main(int argc, char **argv)
 
 
 //JAVA C
+
 	int	sockJava;
 	struct sockaddr_in addClient;
 	
-	int sockServ = socketServeur(port);
-	if (sockServ < 0){
-		printf("Erreur sur socket serveur\n");
-		return -2;
-	}
+	int sockServ;
+	do {
+		sockServ = socketServeur(++port);
+	} while(sockServ < 0);
 
 	int sizeAddr = sizeof(struct sockaddr_in);
 	sockJava = accept(sockServ, (struct sockaddr *)&addClient, (socklen_t *)&sizeAddr);
@@ -136,11 +135,6 @@ int main(int argc, char **argv)
 
 //END JAVA C
 
-
-
-
-	int continuer = 1;
-	char stop[T_BUF];
 	int err = 0;
 	TPartieReq Requete;
 	short begin;
@@ -220,6 +214,7 @@ int main(int argc, char **argv)
 			Pion.coulPion = Requete.coulPion;
 	int tojava =-1000;
 	int nbtour =0;
+	TCoupReq RequeteTest;
 	while (nbPartie <= 2)
 	{
 		TCoupReq RequeteC;
@@ -265,6 +260,18 @@ int main(int argc, char **argv)
 				nbtour++;
 			}
 			//ASK MOTEUR NEXT COUP
+
+			int coup =-1;
+			err = 0;
+			while(err<4) {
+				err = recv(sockJava, &coup, sizeof(int), MSG_PEEK);
+			}
+			err = recv(sockJava, &coup, sizeof(int), 0);
+
+			IntToReq(&RequeteTest,coup);
+
+			//fin moteur
+
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
 			printf("COUP ENVOYE\n");
 			if (err <= 0)
@@ -323,7 +330,12 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
-			printf("Coup reçu.\n");
+			int coupTest = ReqToInt(&RequeteAdversaire);
+				int res = htonl(coupTest);
+				err = send(sockJava,&res,sizeof(int),0);
+				res = ntohl(res);
+
+			printf("Coup reçu. Code : %d\n",coupTest);
 
 
 			break;
@@ -357,8 +369,22 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
+
+				coupTest = ReqToInt(&RequeteAdversaire);
+				res = htonl(coupTest);
+				err = send(sockJava,&res,sizeof(int),0);
+				res = ntohl(res);
 			printf("Coup reçu.\n");
 			//ASK MOTEUR NEXT COUP
+
+			coup =-1;
+			err = 0;
+			while(err<4) {
+				err = recv(sockJava, &coup, sizeof(int), MSG_PEEK);
+			}
+			err = recv(sockJava, &coup, sizeof(int), 0);
+
+			IntToReq(&RequeteTest,coup);
 
 			printf("Mon tour\n");
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
@@ -497,11 +523,11 @@ int main(int argc, char **argv)
 		*/
 	}
 
-	/**** MOTEUR ***/
-	/*
-	shutdown(sockTrans, SHUT_RDWR); 
-  close(sockTrans);
+	/**** MOTEUR IA ***/
+
+	shutdown(sockJava, SHUT_RDWR); 
+  	close(sockJava);
 	close(sockServ);
 	return 0;
-	*/
+
 }
