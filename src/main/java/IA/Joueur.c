@@ -212,7 +212,6 @@ int main(int argc, char **argv)
 	TPion Pion;
 
 			Pion.coulPion = Requete.coulPion;
-	int tojava =-1000;
 	int nbtour =0;
 	TCoupReq RequeteTest;
 	while (nbPartie <= 2)
@@ -294,10 +293,6 @@ int main(int argc, char **argv)
 
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE\n");
-				nbtour=0;
-				int res = htonl(1000);
-				err = send(sockJava,&res,sizeof(int),0);
-				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -314,10 +309,6 @@ int main(int argc, char **argv)
 			}
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
-				nbtour=0;
-				int res = htonl(1000);
-				err = send(sockJava,&res,sizeof(int),0);
-				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -353,10 +344,6 @@ int main(int argc, char **argv)
 			printf("ERROK ? %d\nVALID ? %d\nPROPCOUP ? %d\n",ReponseC.err,ReponseC.validCoup,ReponseC.propCoup);
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
-				nbtour=0;
-				int res = htonl(1000);
-				err = send(sockJava,&res,sizeof(int),0);
-				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");
@@ -406,10 +393,6 @@ int main(int argc, char **argv)
 			}
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				printf("COUP INVALIDE.\n");
-				nbtour=0;
-				int res = htonl(1000);
-				err = send(sockJava,&res,sizeof(int),0);
-				res = ntohl(res);
 				break;
 			}
 			printf("COUP VALIDE.\n");

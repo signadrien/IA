@@ -28,6 +28,7 @@ public class MoteurIA {
 				int result = DIS.readInt();
 				if(result!=-1000){
 					if(result>=1000){
+						System.out.println("Fin de partie réinitialisation");
 						nbPartie++;
 						for(int i = 0; i< 4;i++ ){
 							for(int j =0; j<4;j++){
@@ -38,6 +39,7 @@ public class MoteurIA {
 						}
 						continue;
 					}
+					System.out.println(result);
 					type = result%10;
 					result/=10;
 					int colonne = result%10;
