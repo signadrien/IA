@@ -423,8 +423,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	/**** MOTEUR IA ***/
-
+	shutdown(sockServer, SHUT_RDWR);
+	close(sockServer);
 	shutdown(sockJava, SHUT_RDWR); 
   	close(sockJava);
 	close(sockServ);
