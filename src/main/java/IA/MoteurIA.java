@@ -22,7 +22,8 @@ public class MoteurIA {
 		port = Integer.parseInt(args[1]);
 		int type=0;
 		try{
-			String file = System.getProperty("user.dir") + "/src/main/java/IA/IA.pl";
+			String file = System.getProperty("user.dir") + "/IA.pl";
+			System.out.println(file);
 			JPL.init();
 			Query q1 = new Query("consult('"+file+"')");
 			System.out.println( "consult " + (q1.hasSolution() ? "succeeded" : "failed"));
@@ -82,7 +83,7 @@ public class MoteurIA {
 				java.util.Map<String,Term> solution;
 
 				solution = q4.oneSolution();
-				System.out.println(solution.toString());
+				System.out.println(solution.get("Res").toString());
 					//ask prolog
 					int reponse = 0;
 					//compute response prolog
