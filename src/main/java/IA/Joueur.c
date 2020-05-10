@@ -61,6 +61,7 @@ int ReqToInt(TCoupReq *requete){
 void IntToReq(TCoupReq *res, int requete, TPion *pion, TCase *posPion){
 	if(requete>=1000){
 		res->propCoup=GAGNE;
+		requete-=1000;
 	}
 	else{
 		res->propCoup = CONT;
@@ -79,9 +80,9 @@ void IntToReq(TCoupReq *res, int requete, TPion *pion, TCase *posPion){
 int main(int argc, char **argv)
 {
 
-	if (argc != 3)
+	if (argc != 6)
 	{
-		printf("usage : %s adresse port\n", argv[0]);
+		printf("usage : %s adresse port port2 nomJoueur couleur\n", argv[0]);
 		return -1;
 	}
 
@@ -101,7 +102,7 @@ int main(int argc, char **argv)
 	
 	int sockServ;
 	do {
-		sockServ = socketServeur(++port);
+		sockServ = socketServeur(atoi(argv[3]));
 	} while(sockServ < 0);
 
 	int sizeAddr = sizeof(struct sockaddr_in);
@@ -117,16 +118,9 @@ int main(int argc, char **argv)
 	TPartieReq Requete;
 	short begin;
 	TPartieRep Reponse;
-	char color[T_BUF];
-
-	do
-	{
-		do
-		{
-			printf("Saisir votre Pseudo (taille <= 20) :\n");
-			scanf("%s", Requete.nomJoueur);
-			printf("Saisir la couleur souhaitée : (n/b)\n");
-			scanf("%s", color);
+	char color[T_BUF]=argv[5];
+	char nom [T_BUF]=argv[4];
+			memcpy(Requete.nomJoueur, nom, T_NOM);
 			switch (color[0])
 			{
 			case 'n':
@@ -145,7 +139,6 @@ int main(int argc, char **argv)
 			}
 			Requete.idReq = PARTIE;
 
-		} while (err);
 
 		err = send(sockServer, &Requete, sizeof(TPartieReq), 0);
 		if (err <= 0)
@@ -165,7 +158,6 @@ int main(int argc, char **argv)
 			return -6;
 		}
 
-	} while (Reponse.err != ERR_OK);
 	if (Reponse.validCoulPion == KO)
 	{
 		if (Requete.coulPion == BLANC)
