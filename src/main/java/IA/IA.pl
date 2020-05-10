@@ -108,7 +108,6 @@ fonction(L,L2,Res):-
     testLigne(L,Li,T),
     testColonne(L,Co,T),
     testCarre(L,Li,Co,T),
-    testGagnant(L,Li,Co,T),
     Res = [Li,Co,T].
 
 testLigneGagnant(L,Li,Co,T, Ps,PsI):-

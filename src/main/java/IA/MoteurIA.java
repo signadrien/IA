@@ -22,22 +22,10 @@ public class MoteurIA {
 		port = Integer.parseInt(args[1]);
 		int type=0;
 		try{
-
+			String file = System.getProperty("user.dir") + "/src/main/java/IA/IA.pl";
 			JPL.init();
-			Query q1 = new Query("consult('IA.pl')");
+			Query q1 = new Query("consult('"+file+"')");
 			System.out.println( "consult " + (q1.hasSolution() ? "succeeded" : "failed"));
-
-			Query q4 =
-					new Query(
-							"fonction([-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[0,0,1,1,2,2,3,3],Res)"
-					);
-
-			java.util.Map<String,Term> solution;
-
-			solution = q4.oneSolution();
-			System.out.println(solution.toString());
-
-
 			Socket sock = new Socket(addr,port);
 			DataInputStream DIS = new DataInputStream(sock.getInputStream());
 			DataOutputStream DOS = new DataOutputStream(sock.getOutputStream());
@@ -65,6 +53,36 @@ public class MoteurIA {
 					plateau[ligne][colonne] = type;
 					reserve[1][type]--;
 				}
+				String plat = "[" ;
+				for(int i = 0; i< 4;i++ ){
+					for(int j =0; j<4;j++){
+						plat+=plateau[i][j];
+						if(i!=3 || j!=3)
+							plat+=",";
+					}
+				}
+				plat+="]";
+				System.out.println(plat);
+
+				String reser ="[";
+				for(int i =0;i<4;i++){
+					for(int j =0;j<reserve[0][i];j++){
+						reser+=i;
+						if(i!=3 || j!=reserve[0][i]-1)
+							reser+=",";
+					}
+				}
+				reser+="]";
+				System.out.println(reser);
+				Query q4 =
+						new Query(
+								"fonction("+plat+","+reser+",Res)"
+						);
+
+				java.util.Map<String,Term> solution;
+
+				solution = q4.oneSolution();
+				System.out.println(solution.toString());
 					//ask prolog
 					int reponse = 0;
 					//compute response prolog
