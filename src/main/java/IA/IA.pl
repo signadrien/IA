@@ -113,22 +113,30 @@ fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     ;
     fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!).
 
-testLigneGagnant(L,Li,Co,Acc,Acc1):-
+testLigneGagnant(L,Li,Co,[],Acc1):-
+    E is Li * 4 + Co,
+    nth0(E,L,[Type,Coul]),
+    Type =\= -1,
+    Acc1 = [Type].
+
+testLigneGagnant(L,Li,Co,[Acc],Acc1):-
     E is Li * 4 + Co,
     nth0(E,L,[Type,Coul]),
     Type =\= -1,
     \+member(Type,Acc),
-    append(Acc,Type,Acc1).
+    Acc1 is [Acc|Type].
     
 
 testLignesGagnant(L,Li,Co,T) :-
-    Ps = [0,1,2,3],
-    E is Co + 1 mod 4,
-    testLigneGagnant(L,Li,E,Acc,Acc1),
-    F is Co + 2 mod 4,
-    testLigneGagnant(L,Li,F,Acc1,Acc2),
-    G is Co + 3 mod 4,
-    testLigneGagnant(L,Li,G,Acc2,Acc3),
+    E is Co + 1,
+    E1 is E mod 4,
+    testLigneGagnant(L,Li,E1,[],Acc1),
+    F is (Co + 2),
+    F1 is F mod 4,
+    testLigneGagnant(L,Li,F1,Acc1,Acc2),
+    G is Co + 3,
+    G1 is G mod 4,
+    testLigneGagnant(L,Li,G1,Acc2,Acc3),
     msort(Acc3,Sort),
     select(T,[0,1,2,3],Acc3).
 
