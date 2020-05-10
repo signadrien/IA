@@ -9,7 +9,7 @@ import java.net.Socket;
 public class MoteurIA {
 
 	public static void main(String[] args) {
-		int plateau[][] = { { -1, -1, -1, -1 }, { -1, -1, -1, -1 }, { -1, -1, -1, -1 }, { -1, -1, -1, -1 } };
+		int plateau[][][] = { { {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1} }, { {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1} }, { {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1} }, { {-1,-1}, {-1,-1}, {-1,-1}, {-1,-1} } };
 		int reserve[][] = { { 2, 2, 2, 2 }, { 2, 2, 2, 2 } };
 
 		int port = 0;
@@ -38,7 +38,8 @@ public class MoteurIA {
 						nbPartie++;
 						for (int i = 0; i < 4; i++) {
 							for (int j = 0; j < 4; j++) {
-								plateau[j][i] = -1;
+								plateau[j][i][0] = -1;
+								plateau[i][j][1] = -1;
 								if (j < 2)
 									reserve[j][i] = 2;
 							}
@@ -51,13 +52,14 @@ public class MoteurIA {
 					int colonne = result % 10;
 					result /= 10;
 					int ligne = result;
-					plateau[ligne][colonne] = type;
+					plateau[ligne][colonne][0] = type;
+					plateau[ligne][colonne][1] = 1;
 					reserve[1][type]--;
 				}
 				String plat = "[";
 				for (int i = 0; i < 4; i++) {
 					for (int j = 0; j < 4; j++) {
-						plat += plateau[i][j];
+						plat += "["+plateau[i][j][0] + ","+plateau[i][j][1]+"]";
 						if (i != 3 || j != 3)
 							plat += ",";
 					}
@@ -66,7 +68,7 @@ public class MoteurIA {
 				String indPossible = "[";
 				for (int i = 0; i < 4; i++) {
 					for (int j = 0; j < 4; j++) {
-						if (plateau[i][j] == -1) {
+						if (plateau[i][j][0] == -1) {
 							indPossible += i * 4 + j;
 							indPossible += ",";
 						}
@@ -97,12 +99,13 @@ public class MoteurIA {
 					if (solution.get("Gagne").intValue() == 1) {
 						reponse += 1000;
 					}
-					plateau[solution.get("Ligne").intValue()][solution.get("Colonne").intValue()] = solution.get("Type")
+					plateau[solution.get("Ligne").intValue()][solution.get("Colonne").intValue()][0] = solution.get("Type")
 							.intValue();
+					plateau[solution.get("Ligne").intValue()][solution.get("Colonne").intValue()][1] = 0;
 					int nbPion = 0;
 					for(int i =0;i<4;i++){
 						for(int j = 0 ; j<4;j++){
-							if(plateau[i][j]!=-1){
+							if(plateau[i][j][0]!=-1){
 								nbPion++;
 							}
 						}
