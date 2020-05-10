@@ -223,9 +223,10 @@ int main(int argc, char **argv)
 		{
 			//Attente d'un coup de joueur 1
 			printf("Attente du coup de joueur 1 %s\n", joueursName[0]);
-
+			//On redéfini le timer qui est réinitialiser entre chaque select (si j'ai bien compris)
 			delai.tv_sec = 5;
 			delai.tv_usec = 0;
+			//On ajoute la socket du joueur 1 dans le descripteur
 			FD_SET(sockTransJ1, &readSet);
 			err = select(nfsd, &readSet, NULL, NULL, &delai);
 			if (err < 0)
@@ -238,6 +239,7 @@ int main(int argc, char **argv)
 				close(sockTransJ2);
 				return -5;
 			}
+			//Si le joueur 1 a envoyé avant 5 sec son coup
 			if (FD_ISSET(sockTransJ1, &readSet) != 0)
 			{
 				err = recv(sockTransJ1, &reqCoup, sizeof(TCoupReq), 0);
@@ -247,21 +249,28 @@ int main(int argc, char **argv)
 					shutdown(sockTransJ1, SHUT_RDWR);
 					close(sockTransJ1);
 				}
+				//On stock la validité du coup
 				isValid = validationCoup(1, reqCoup, &arbitrage);
+				//On rempli les réponse avec l'arbitrage
 				repCoupJ1.propCoup = arbitrage;
 				repCoupJ2.propCoup = arbitrage;
+				//Si le coup est valide
 				if (isValid)
 				{
+					//On rempli d'abord la validité du coup dans les deux réponses des joueurs
 					repCoupJ1.validCoup = VALID;
 					repCoupJ2.validCoup = VALID;
+					//Si le coup est gagnant
 					if (arbitrage == GAGNE)
 					{
 						printf("Joueur 1 gagne la manche\n");
 						repCoupJ1.propCoup = GAGNE;
 						repCoupJ2.propCoup = PERDU;
+						//Fin de la manche
 						fin = true;
 						J1Win++;
 					}
+					//Si le coup est perdant
 					if (arbitrage == PERDU)
 					{
 						printf("Joueur 2 gagne la manche\n");
@@ -270,6 +279,7 @@ int main(int argc, char **argv)
 						J2Win++;
 						fin = true;
 					}
+					//Si le coup donne match nul
 					if (arbitrage == NUL)
 					{
 						printf("Match nul\n");
@@ -278,8 +288,10 @@ int main(int argc, char **argv)
 						fin = true;
 					}
 				}
+				//Si le coup est invalide ou que l'arbitrage n'est pas d'accord avec la propriété donné par le joueur
 				if (!isValid || arbitrage != reqCoup.propCoup)
 				{
+					//Le joueur est compté comme tricheur et perd la manche
 					printf("Triche");
 					repCoupJ1.validCoup = TRICHE;
 					repCoupJ1.propCoup = PERDU;
@@ -291,22 +303,24 @@ int main(int argc, char **argv)
 				repCoupJ1.err = ERR_OK;
 				repCoupJ2.err = ERR_OK;
 			}
+			//Si pas de réponse dans les 5 secondes
 			else
 			{
 				printf("Rien reçu\n");
-				repCoupJ1.validCoup = TRICHE;
+				repCoupJ1.validCoup = TIMEOUT;
 				repCoupJ1.propCoup = PERDU;
-				repCoupJ2.validCoup = TRICHE;
+				repCoupJ2.validCoup = TIMEOUT;
 				repCoupJ2.propCoup = GAGNE;
 				repCoupJ1.err = ERR_OK;
 				repCoupJ2.err = ERR_OK;
 				J2Win++;
 				fin = true;
 			}
+			//On retire la socket du joueur 1 et on ajoute celle du joueur 2 dans le descripteur
 			FD_CLR(sockTransJ1,&readSet);
 			FD_SET(sockTransJ2, &readSet);
 			printf("Envoie au joueur 1 la réponse à sa requête\n");
-
+			//Envoie des réponses aux deux joueurs
 			err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -324,12 +338,13 @@ int main(int argc, char **argv)
 				close(sockTransJ2);
 				return -5;
 			}
-
+			//Si la partie est finie on casse la boucle
 			if (fin)
 			{
 				printf("La partie est finie\n");
 				continue;
 			}
+			//Sinon on envoie la requête au joueur suivant du joueur qui a joué
 			else
 			{
 				printf("La partie continue, envoie au joueur 2 la requête du joueur 1\n");
@@ -344,7 +359,7 @@ int main(int argc, char **argv)
 			}
 			printf("%s a joué, au tour de %s\n", joueursName[0], joueursName[1]);
 
-			//Tour du joueur 2
+			//Tour du joueur 2(même chose que tour 1 mais en inversé)
 			delai.tv_sec = 5;
 			delai.tv_usec = 0;
 			printf("Attente du coup de joueur 2 %s\n", joueursName[1]);
@@ -414,9 +429,9 @@ int main(int argc, char **argv)
 			}else
 			{
 				printf("Rien reçu\n");
-				repCoupJ1.validCoup = TRICHE;
+				repCoupJ1.validCoup = TIMEOUT;
 				repCoupJ1.propCoup = PERDU;
-				repCoupJ2.validCoup = TRICHE;
+				repCoupJ2.validCoup = TIMEOUT;
 				repCoupJ2.propCoup = GAGNE;
 				repCoupJ1.err = ERR_OK;
 				repCoupJ2.err = ERR_OK;
@@ -462,13 +477,14 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		printf("Partie suivante!\n");
+		//Fin de la manche, on remet fin à false pour la partie d'après, on augmente le compteur de partie, et on inverse les joueurs
 		fin = false;
 		compteurPartie++;
 		inversion = !inversion;
 		printf("Score J1 : %d\n", J1Win);
 		printf("Score J2 : %d\n", J2Win);
 	}
+	//Fermeture des sockets
 	shutdown(sockTransJ1, SHUT_RDWR);
 	close(sockTransJ1);
 	shutdown(sockTransJ2, SHUT_RDWR);
