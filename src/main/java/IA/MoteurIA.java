@@ -23,7 +23,6 @@ public class MoteurIA {
 		int type = 0;
 		try {
 			String file = System.getProperty("user.dir") + "/IA.pl";
-			System.out.println(file);
 			JPL.init();
 			Query q1 = new Query("consult('" + file + "')");
 			System.out.println("consult " + (q1.hasSolution() ? "succeeded" : "failed"));
@@ -86,8 +85,9 @@ public class MoteurIA {
 				Query q4 = new Query(
 						"fonction(" + plat + "," + reser + "," + indPossible + ",Gagne,Ligne,Colonne,Type)");
 
+						System.out.println("fonction(" + plat + "," + reser + "," + indPossible + ",Gagne,Ligne,Colonne,Type)");
 				java.util.Map<String, Term> solution;
-				if(!q1.hasSolution()){
+				if(!q1.hasMoreSolutions()){
 					DOS.writeInt(000);
 				}
 				else {

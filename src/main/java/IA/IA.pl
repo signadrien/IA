@@ -4,8 +4,8 @@
 
 
 testCase(L,X) :-
-    nth0(X,L,I),
-    I<0.
+    nth0(X,L,[Type,_]),
+    Type<0.
 
 testColor(C,C2,T,T2):-
     C\=C2,
@@ -87,9 +87,9 @@ fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     Co is X mod 4,
     random_member(T,L2),
     delete(L2,T,L2P),
-    (testLigne(L,Li,T) ->
-    (testColonne(L,Co,T)->
-    (testCarre(L,Li,Co,T)->
+    (testLigne(L,Li,T,0) ->
+    (testColonne(L,Co,T,0)->
+    (testCarre(L,Li,Co,T,0)->
     Ligne = Li,
     Colonne = Co,
     Piece = T,
@@ -260,4 +260,4 @@ caseGagnante(L,Case,Li,Co,T):-
     testGagnant(L,Li,Co,T),
     testLigne(L,Li,T,0),
     testColonne(L,Co,T,0),
-    testCarre(L,Li,Co,T,0).
+    testCarre(L,Li,Co,T,0),!.
