@@ -140,7 +140,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-
 	int nfsd = 6;
 
 	//Envoie au joueurs la réponse de leur requête, indiquant quelle couleurs ils ont
@@ -317,7 +316,7 @@ int main(int argc, char **argv)
 				fin = true;
 			}
 			//On retire la socket du joueur 1 et on ajoute celle du joueur 2 dans le descripteur
-			FD_CLR(sockTransJ1,&readSet);
+			FD_CLR(sockTransJ1, &readSet);
 			FD_SET(sockTransJ2, &readSet);
 			printf("Envoie au joueur 1 la réponse à sa requête\n");
 			//Envoie des réponses aux deux joueurs
@@ -426,7 +425,8 @@ int main(int argc, char **argv)
 				}
 				repCoupJ1.err = ERR_OK;
 				repCoupJ2.err = ERR_OK;
-			}else
+			}
+			else
 			{
 				printf("Rien reçu\n");
 				repCoupJ1.validCoup = TIMEOUT;
@@ -439,7 +439,7 @@ int main(int argc, char **argv)
 				fin = true;
 			}
 
-			FD_CLR(sockTransJ2,&readSet);
+			FD_CLR(sockTransJ2, &readSet);
 			printf("Envoie au joueur 1 la réponse à la requête du joueur 2\n");
 			err = send(sockTransJ1, &repCoupJ1, sizeof(TCoupRep), 0);
 			if (err <= 0)
