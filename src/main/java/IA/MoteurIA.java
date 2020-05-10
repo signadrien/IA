@@ -63,8 +63,6 @@ public class MoteurIA {
 					}
 				}
 				plat += "]";
-				System.out.println(plat);
-
 				String indPossible = "[";
 				for (int i = 0; i < 4; i++) {
 					for (int j = 0; j < 4; j++) {
@@ -76,7 +74,6 @@ public class MoteurIA {
 				}
 				indPossible = indPossible.substring(0, indPossible.length() - 1);
 				indPossible += "]";
-				System.out.println(indPossible);
 
 				String reser = "[";
 				for (int i = 0; i < 4; i++) {
@@ -90,22 +87,35 @@ public class MoteurIA {
 						"fonction(" + plat + "," + reser + "," + indPossible + ",Gagne,Ligne,Colonne,Type)");
 
 				java.util.Map<String, Term> solution;
-
-				solution = q4.oneSolution();
-				int reponse = 0;
-				if (solution.get("Gagne").intValue() == 1) {
-					reponse += 1000;
+				if(!q1.hasSolution()){
+					DOS.writeInt(000);
 				}
-				reponse += solution.get("Ligne").intValue() * 100;
-				reponse += solution.get("Colonne").intValue() * 10;
-				reponse += solution.get("Type").intValue();
-				System.out.println(reponse);
+				else {
+					solution = q4.oneSolution();
 
-				reserve[0][type]--;
-
-				DOS.writeInt(reponse);
-				plateau[solution.get("Ligne").intValue()][solution.get("Colonne").intValue()] = solution.get("Type")
-						.intValue();
+					int reponse = 0;
+					if (solution.get("Gagne").intValue() == 1) {
+						reponse += 1000;
+					}
+					plateau[solution.get("Ligne").intValue()][solution.get("Colonne").intValue()] = solution.get("Type")
+							.intValue();
+					int nbPion = 0;
+					for(int i =0;i<4;i++){
+						for(int j = 0 ; j<4;j++){
+							if(plateau[i][j]!=-1){
+								nbPion++;
+							}
+						}
+					}
+					if (nbPion == 15) {
+						reponse += 2000;
+					}
+					reponse += solution.get("Ligne").intValue() * 100;
+					reponse += solution.get("Colonne").intValue() * 10;
+					reponse += solution.get("Type").intValue();
+					reserve[0][type]--;
+					DOS.writeInt(reponse);
+				}
 			}
 			sock.close();
 		} catch (Exception e) {

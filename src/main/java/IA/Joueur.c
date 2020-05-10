@@ -62,13 +62,17 @@ int ReqToInt(TCoupReq *requete)
 
 void IntToReq(TCoupReq *res, int requete, TPion *pion, TCase *posPion)
 {
-	if (requete >= 1000)
+	if (requete >= 1000 && requete <2000)
 	{
 		res->propCoup = GAGNE;
 		requete -= 1000;
 	}
 	else
 	{
+	    if(requete >=2000){
+	        res->propCoup = NUL;
+	        requete -= 2000;
+	    }
 		res->propCoup = CONT;
 	}
 	if (requete < 0)
