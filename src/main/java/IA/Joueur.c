@@ -311,7 +311,6 @@ int main(int argc, char **argv)
 			IntToReq(&RequeteC, coup, &Pion, &posPion);
 			RequeteC.pion = Pion;
 			RequeteC.posPion = posPion;
-			printf("PROP :%d, colonne : %d,Ligne : %d, TYPE : %d\n", RequeteC.propCoup, RequeteC.posPion.c, RequeteC.posPion.l, RequeteC.pion.typePion);
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{

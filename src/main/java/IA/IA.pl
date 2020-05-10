@@ -128,7 +128,7 @@ testLigneGagnant(L,Li,Co,Acc,Acc1):-
     
 
 testLignesGagnant(L,Li,Co,T) :-
-    E is Co + 1,
+    E is Co + 1, 
     E1 is E mod 4,
     testLigneGagnant(L,Li,E1,[],Acc1),
     F is (Co + 2),
@@ -138,7 +138,7 @@ testLignesGagnant(L,Li,Co,T) :-
     G1 is G mod 4,
     testLigneGagnant(L,Li,G1,Acc2,Acc3),
     msort(Acc3,Sort),
-    select(T,[0,1,2,3],Sort).
+    select(T,[0,1,2,3],Sort),!.
 
 
 testColonnesGagnant(L,Li,Co,T):-
