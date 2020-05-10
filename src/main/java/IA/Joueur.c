@@ -348,7 +348,6 @@ int main(int argc, char **argv)
 			{
 				begin++;
 			}
-			nbCoup = 0;
 			nbPartie++;
 		}
 	}

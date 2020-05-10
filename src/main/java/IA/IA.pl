@@ -68,21 +68,6 @@ testCarre(L,Li,Co,T):-
     nth0(G,L,I),
     I=\=T,!.
 
-
-removeIeme([],_,_,L2,Res):-
-    Res = L2.
-removeIeme([F|R],I,N,L2,Res):-
-    N\=I,
-    append([F],L2,L3),
-    X is N+1,
-    removeIeme(R,I,X,L3,Res).
-
-removeIeme([F|R],I,N,L2,Res):-
-    N==I,
-    X is N+1,
-    removeIeme(R,I,X,L2,Res).
-
-
 fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     (caseGagnante(L,Case,Li,Co,T) ->
     Ligne = Li,
@@ -90,11 +75,13 @@ fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     Piece = T,
     Gagnant = 1
     );
-    select(X,Case,CaseX),
+    random_member(X,Case),
+    delete(Case,X,CaseX),
     (testCase(L,X) ->
     Li is X//4,
     Co is X mod 4,
-    select(T,L2,L2P),
+    random_member(T,L2),
+    delete(L2,T,L2P),
     (testLigne(L,Li,T) ->
     (testColonne(L,Co,T)->
     (testCarre(L,Li,Co,T)->
