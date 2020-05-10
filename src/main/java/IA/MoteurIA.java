@@ -83,6 +83,7 @@ public class MoteurIA {
 							if(reserve[0][i]>0)
 							reser+=i+",";
 				}
+				reser = reser.substring(0,reser.length()-1);
 				reser+="]";
 				System.out.println(reser);
 				Query q4 =
@@ -100,7 +101,7 @@ public class MoteurIA {
 					reponse+=solution.get("Ligne").intValue()*100;
 					reponse+=solution.get("Colonne").intValue()*10;
 					reponse+=solution.get("Type").intValue();
-
+					System.out.println(reponse);
 
 					reserve[0][type]--;
 

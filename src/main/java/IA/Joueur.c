@@ -58,7 +58,7 @@ int ReqToInt(TCoupReq *requete){
 }
 
 
-void IntToReq(TCoupReq *res, int requete){
+void IntToReq(TCoupReq *res, int requete, TPion *pion, TCase *posPion){
 	if(requete>=1000){
 		res->propCoup=GAGNE;
 	}
@@ -69,11 +69,11 @@ void IntToReq(TCoupReq *res, int requete){
 		res->propCoup = NUL;
 		requete*=-1;
 	}
-	res->pion.typePion = (TTypePion)requete%10;
+	pion->typePion = (TTypePion)requete%10;
 	requete/=10;
-	res->posPion.c  = requete%10;
+	posPion->c  = requete%10;
 	requete/=10;
-	res->posPion.l =  requete;
+	posPion->l =  requete;
 }
 
 int main(int argc, char **argv)
@@ -85,28 +85,6 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	TTypePion J1P[4];
-	TTypePion J2P[4];
-	J1P[0]=SPHERE;
-	J1P[1]=CYLINDRE;
-	J1P[2]=TETRAEDRE;
-	J1P[3]=PAVE;
-
-	J2P[0]=SPHERE;
-	J2P[1]=CYLINDRE;
-	J2P[2]=TETRAEDRE;
-	J2P[3]=PAVE;
-	TCase J1C[4];
-	TCase J2C[4];
-	J1C[0].c=A;J1C[0].l=UN;
-	J1C[1].c=A;J1C[1].l=DEUX;
-	J1C[2].c=A;J1C[2].l=TROIS;
-	J1C[3].c=A;J1C[3].l=QUATRE;
-
-	J2C[0].c=D;J2C[0].l=QUATRE;
-	J2C[1].c=D;J2C[1].l=TROIS;
-	J2C[2].c=D;J2C[2].l=DEUX;
-	J2C[3].c=D;J2C[3].l=UN;
 	int port = atoi(argv[2]);
 	int sockServer = socketClient(argv[1], port);
 	if (sockServer <= 0)
@@ -209,40 +187,19 @@ int main(int argc, char **argv)
 
 			Pion.coulPion = Requete.coulPion;
 	int nbtour =0;
-	TCoupReq RequeteTest;
+	TCase posPion;
+	TCoupReq RequeteC;
+	TCoupReq RequeteAdversaire;
+	RequeteC.idRequest = COUP;
+	RequeteC.estBloque = false;
+	TCoupRep ReponseC;
 	while (nbPartie <= 2)
 	{
-		TCoupReq RequeteC;
-		TCoupReq RequeteAdversaire;
-		RequeteC.idRequest = COUP;
 		RequeteC.numPartie = nbPartie;
 		
 
-		TCoupRep ReponseC;
-
-		// a modifier avec les coups
-		if(begin==0){
-
-			Pion.typePion = J1P[nbCoup];
+		
 			
-			RequeteC.estBloque = false;
-			RequeteC.posPion = J1C[nbCoup++];
-			if(nbCoup == 4 ){
-				RequeteC.propCoup=GAGNE;
-			}
-			else{
-				RequeteC.propCoup = CONT;
-			}
-
-		}
-		else{
-			Pion.typePion = J2P[nbCoup];
-			
-			RequeteC.estBloque = false;
-			RequeteC.posPion = J2C[nbCoup++];
-			RequeteC.propCoup = CONT;
-		}
-			RequeteC.pion = Pion;
 		/**** VALIDATION *****/
 		switch (begin)
 		{
@@ -261,9 +218,10 @@ int main(int argc, char **argv)
 				err = recv(sockJava, &coup, sizeof(int), MSG_PEEK);
 			}
 			err = recv(sockJava, &coup, sizeof(int), 0);
-
-			IntToReq(&RequeteTest,coup);
-
+            coup = ntohl(coup);
+			IntToReq(&RequeteC,coup,&Pion,&posPion);
+			RequeteC.pion = Pion;
+			RequeteC.posPion = posPion;
 			//fin moteur
 
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
@@ -350,8 +308,12 @@ int main(int argc, char **argv)
 				err = recv(sockJava, &coup, sizeof(int), MSG_PEEK);
 			}
 			err = recv(sockJava, &coup, sizeof(int), 0);
-			IntToReq(&RequeteTest,coup);
-			printf("PROP :%d, colonne : %d,Ligne : %d, TYPE : %d\n",RequeteTest.propCoup,RequeteTest.posPion.c,RequeteTest.posPion.l,RequeteTest.pion.typePion);
+			coup = ntohl(coup);
+			printf("%d\n",coup);
+			IntToReq(&RequeteC,coup,&Pion,&posPion);
+			RequeteC.pion = Pion;
+			RequeteC.posPion = posPion;
+			printf("PROP :%d, colonne : %d,Ligne : %d, TYPE : %d\n",RequeteC.propCoup,RequeteC.posPion.c,RequeteC.posPion.l,RequeteC.pion.typePion);
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
