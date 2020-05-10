@@ -25,6 +25,8 @@ public class MoteurIA {
 
 			JPL.init();
 			Query q1 = new Query("consult('IA.pl')");
+			System.out.println( "consult " + (q1.hasSolution() ? "succeeded" : "failed"));
+
 			Query q4 =
 					new Query(
 							"fonction([-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[0,0,1,1,2,2,3,3],Res)"

@@ -79,9 +79,9 @@ void IntToReq(TCoupReq *res, int requete){
 int main(int argc, char **argv)
 {
 
-	if (argc != 2)
+	if (argc != 3)
 	{
-		printf("usage : %s port\n", argv[0]);
+		printf("usage : %s adresse port\n", argv[0]);
 		return -1;
 	}
 
@@ -107,8 +107,8 @@ int main(int argc, char **argv)
 	J2C[1].c=D;J2C[1].l=TROIS;
 	J2C[2].c=D;J2C[2].l=DEUX;
 	J2C[3].c=D;J2C[3].l=UN;
-	int port = atoi(argv[1]);
-	int sockServer = socketClient("127.0.0.1", port);
+	int port = atoi(argv[2]);
+	int sockServer = socketClient(argv[1], port);
 	if (sockServer <= 0)
 	{
 		perror("(client) Erreur dans la connexion avec le serveur");
@@ -190,23 +190,19 @@ int main(int argc, char **argv)
 	} while (Reponse.err != ERR_OK);
 	if (Reponse.validCoulPion == KO)
 	{
-		printf("Changement de couleur :");
 		if (Requete.coulPion == BLANC)
 		{
-			printf("Vous êtes noir\n");
 			Requete.coulPion = NOIR;
 			begin = 1;
 		}
 		else
 		{
-			printf("Vous êtes blanc\n");
 			Requete.coulPion = BLANC;
 			begin = 0;
 		}
 	}
 
 	int nbPartie = 1;
-	printf("Debut de la partie\n");
 
 	int nbCoup=0;
 	TPion Pion;
@@ -251,7 +247,6 @@ int main(int argc, char **argv)
 		switch (begin)
 		{
 		case 0:
-			printf("Mon tour\n");
 			if(nbtour==0){
 				int res = htonl(-1000);
 				err = send(sockJava,&res,sizeof(int),0);
@@ -272,7 +267,6 @@ int main(int argc, char **argv)
 			//fin moteur
 
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
-			printf("COUP ENVOYE\n");
 			if (err <= 0)
 			{
 				perror("(client) erreur sur le send");
@@ -280,7 +274,6 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -5;
 			}
-			printf("Validation de mon coup...\n");
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -292,11 +285,8 @@ int main(int argc, char **argv)
 			}
 
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
-				printf("COUP INVALIDE\n");
 				break;
 			}
-			printf("COUP VALIDE.\n");
-			printf("Validation du coup de l'adversaire...\n");
 
 			//Le coup de l'adversaire est valid ?
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
@@ -308,11 +298,8 @@ int main(int argc, char **argv)
 				return -6;
 			}
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
-				printf("COUP INVALIDE.\n");
 				break;
 			}
-			printf("COUP VALIDE.\n");
-			printf("Reception du coup de l'adversaire...\n");
 			err = recv(sockServer, &RequeteAdversaire, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -326,13 +313,11 @@ int main(int argc, char **argv)
 				err = send(sockJava,&res,sizeof(int),0);
 				res = ntohl(res);
 
-			printf("Coup reçu. Code : %d\n",coupTest);
 
 
 			break;
 		case 1:
 			//Le coup de l'adversaire est valid ?
-			printf("Validation du coup de l'adversaire...\n");
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -343,11 +328,8 @@ int main(int argc, char **argv)
 			}
 			printf("ERROK ? %d\nVALID ? %d\nPROPCOUP ? %d\n",ReponseC.err,ReponseC.validCoup,ReponseC.propCoup);
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
-				printf("COUP INVALIDE.\n");
 				break;
 			}
-			printf("COUP VALIDE.\n");
-			printf("Reception du coup de l'adversaire...\n");
 			err = recv(sockServer, &RequeteAdversaire, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -361,7 +343,6 @@ int main(int argc, char **argv)
 				res = htonl(coupTest);
 				err = send(sockJava,&res,sizeof(int),0);
 				res = ntohl(res);
-			printf("Coup reçu.\n");
 			//ASK MOTEUR NEXT COUP
 
 			coup =-1;
@@ -370,10 +351,7 @@ int main(int argc, char **argv)
 				err = recv(sockJava, &coup, sizeof(int), MSG_PEEK);
 			}
 			err = recv(sockJava, &coup, sizeof(int), 0);
-
 			IntToReq(&RequeteTest,coup);
-
-			printf("Mon tour\n");
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -382,7 +360,6 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -5;
 			}
-			printf("Validation de mon coup...\n");
 			err = recv(sockServer, &ReponseC, sizeof(TCoupRep), 0);
 			if (err <= 0)
 			{
@@ -392,10 +369,8 @@ int main(int argc, char **argv)
 				return -6;
 			}
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
-				printf("COUP INVALIDE.\n");
 				break;
 			}
-			printf("COUP VALIDE.\n");
 			break;
 			default:
 				printf("ERROR on Begin value");
@@ -409,7 +384,6 @@ int main(int argc, char **argv)
 			int res = htonl(1000);
 			err = send(sockJava,&res,sizeof(int),0);
 			res = ntohl(res);
-			printf("FIN DE PARTIE \n\n");
 			if (begin==1)
 			{
 				begin--;
