@@ -59,7 +59,7 @@ int ReqToInt(TCoupReq *requete){
 
 
 void IntToReq(TCoupReq *res, int requete){
-	if(requete>1000){
+	if(requete>=1000){
 		res->propCoup=GAGNE;
 	}
 	else{
@@ -326,7 +326,6 @@ int main(int argc, char **argv)
 				close(sockServer);
 				return -6;
 			}
-			printf("ERROK ? %d\nVALID ? %d\nPROPCOUP ? %d\n",ReponseC.err,ReponseC.validCoup,ReponseC.propCoup);
 			if(ReponseC.err != ERR_OK || ReponseC.validCoup != VALID || ReponseC.propCoup != CONT){
 				break;
 			}
@@ -352,6 +351,7 @@ int main(int argc, char **argv)
 			}
 			err = recv(sockJava, &coup, sizeof(int), 0);
 			IntToReq(&RequeteTest,coup);
+			printf("PROP :%d, colonne : %d,Ligne : %d, TYPE : %d\n",RequeteTest.propCoup,RequeteTest.posPion.c,RequeteTest.posPion.l,RequeteTest.pion.typePion);
 			err = send(sockServer, &RequeteC, sizeof(TCoupReq), 0);
 			if (err <= 0)
 			{
@@ -377,7 +377,6 @@ int main(int argc, char **argv)
 		}
 
 		//Fin d'une partie
-		printf("%d",ReponseC.propCoup);
 		if (ReponseC.propCoup != CONT)
 		{
 			nbtour=0;

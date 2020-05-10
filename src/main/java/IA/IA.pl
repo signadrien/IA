@@ -96,23 +96,23 @@ testColonneGagnant(L,Co,T) :-
 isGagnant(L, Li, Co, Pion):-
     testLigneGagnant(L,Li,Pion).
 
-fonction(L,L2,Res):-
-    random_between(0,15,X),
-    length(L2,TailleL2),
-    testCase(L,X) -> 
+fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
+    select(X,Case,CaseX),
+    testCase(L,X) ->
     Li is X//4,
     Co is X mod 4,
-    TL2 is TailleL2 -1,
-    random_between(0,TL2,P),
-    nth0(P,L2,T),
+    select(T,L2,L2P),
     testLigne(L,Li,T) ->
     testColonne(L,Co,T)->
     testCarre(L,Li,Co,T)->
-    Res = [Li,Co,T]; 
-    fonction(L,L2,Res),!; 
-    fonction(L,L2,Res),!; 
-    fonction(L,L2,Res),!; 
-    fonction(L,L2,Res),!.
+    Ligne = Li,
+    Colonne = Co,
+    Piece = T,
+    Gagnant = 0;
+    fonction(L,L2,CasX,Gagnant,Ligne,Colonne,Piece),!;
+    fonction(L,L2,CasX,Gagnant,Ligne,Colonne,Piece),!;
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!;
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!.
 
 testLigneGagnant(L,Li,Co,T, Ps,PsI):-
     E is Li * 4 + Co,

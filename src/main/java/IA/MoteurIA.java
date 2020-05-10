@@ -65,6 +65,19 @@ public class MoteurIA {
 				plat+="]";
 				System.out.println(plat);
 
+				String indPossible = "[" ;
+				for(int i = 0; i< 4;i++ ){
+					for(int j =0; j<4;j++){
+						if(plateau[i][j]==-1){
+							indPossible+=i*4+j;
+							indPossible+=",";
+						}
+					}
+				}
+				indPossible =indPossible.substring(0,indPossible.length()-1);
+				indPossible+="]";
+				System.out.println(indPossible);
+
 				String reser ="[";
 				for(int i =0;i<4;i++){
 					for(int j =0;j<reserve[0][i];j++){
@@ -77,20 +90,28 @@ public class MoteurIA {
 				System.out.println(reser);
 				Query q4 =
 						new Query(
-								"fonction("+plat+","+reser+",Res)"
+								"fonction("+plat+","+reser+","+indPossible+",Gagne,Ligne,Colonne,Type)"
 						);
 
 				java.util.Map<String,Term> solution;
 
 				solution = q4.oneSolution();
-				System.out.println(solution.get("Res").toString());
-					//ask prolog
+				System.out.println(solution.get("Ligne"));
+				System.out.println(solution.get("Colonne"));
+				System.out.println(solution.get("Type"));
 					int reponse = 0;
-					//compute response prolog
+					if(solution.get("Gagne").intValue()==1){
+						reponse+=1000;
+					}
+					reponse+=solution.get("Ligne").intValue()*100;
+					reponse+=solution.get("Colonne").intValue()*10;
+					reponse+=solution.get("Type").intValue();
+
 
 					reserve[0][type]--;
 
 					DOS.writeInt(reponse);
+					plateau[solution.get("Ligne").intValue()][solution.get("Colonne").intValue()]=solution.get("Type").intValue();
 			}
 			sock.close();
 		} catch (Exception e) {
