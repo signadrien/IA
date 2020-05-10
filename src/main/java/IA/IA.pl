@@ -69,17 +69,18 @@ testCarre(L,Li,Co,T):-
     I=\=T,!.
 
 
-removeIeme([],_,_,L2).
-removeIeme([F|R],I,N,L2):-
+removeIeme([],_,_,L2,Res):-
+    Res = L2.
+removeIeme([F|R],I,N,L2,Res):-
     N\=I,
-    append([F],L2,L2),
+    append([F],L2,L3),
     X is N+1,
-    removeIeme(R,I,X,L2).
+    removeIeme(R,I,X,L3,Res).
 
-removeIeme([F|R],I,N,L2):-
+removeIeme([F|R],I,N,L2,Res):-
     N==I,
     X is N+1,
-    removeIeme(R,I,X,L2).
+    removeIeme(R,I,X,L2,Res).
 
 
 fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
