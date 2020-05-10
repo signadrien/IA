@@ -6,3 +6,7 @@ src/main/java/IA/arbitre
 src/main/java/IA/joueur
 
 src/main/java/IA/Makefile
+
+pom.xml
+
+target/
