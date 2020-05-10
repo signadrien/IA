@@ -82,33 +82,40 @@ fonction(L,L2,Res):-
     testCarre(L,Li,Co,T),
     Res = [Li,Co,T].
 
+testLigneGagnant(L,Li,Co,T, Ps,PsI):-
+    E is Li * 4 + Co,
+    nth0(E,L,I),
+    I =\= -1,
+    select(I,Ps,PsI).
+
+testLignesGagnant(L,Li,Co,T,Res) :-
+    Ps = [0,1,2,3],
+    E is Co + 1 mod 4,
+    testLigneGagnant(L,Li,E,T,Ps,PsI),
+    F is Co + 2 mod 4,
+    testLigneGagnant(L,Li,F,T,PsI,PsI1),
+    G is Co + 3 mod 4,
+    testLigneGagnant(L,Li,G,T,PsI1,PsI2),
+    nth0(0,PsI2,Res).
+
+
+testColonnesGagnant(L,Li,Co,T,Res):-
+    Ps = [0,1,2,3],
+    E is Co + 4 mod 16,
+    testColonneGagnant(L,Li,E,T,Ps,PsI),
+    F is Co + 8 mod 16,
+    testColonneGagnant(L,Li,F,T,PsI,PsI1),
+    G is Co + 12 mod 16,
+    testColonneGagnant(L,Li,G,T,PsI1,PsI2),
+    nth0(0,PsI2,Res).
+
+testColonneGagnant(L,Li,Co,T,Ps,PsI):-
+    E is Li * 4 + Co,
+    nth0(E, L, I),
+    I =\= -1,
+    select(I,Ps,PsI).
 
 isGagnant(L, Li, Co, Pion):-
-    testLigneGagnant(L,Li,Pion).
-
-testLigneGagnant(L,Li,T) :-
-    E is Li*4,
-    nth0(E,L,I),
-    I=\= -1,
-    F is Li*4+1,
-    nth0(F,L,I),
-    I=\= -1,
-    G is Li*4+2,
-    nth0(G,L,I),
-    I=\= -1,
-    H is Li*4+3,
-    nth0(H,L,I),
-    I=\= -1.
-
-testColonneGagnant(L,Co,T) :-
-    nth0(Co,L,I),
-    I=\= -1,
-    E is Co+4,
-    nth0(E,L,I),
-    I=\= -1,
-    F is Co+8,
-    nth0(F,L,I),
-    I=\= -1,
-    G is Co+12,
-    nth0(G,L,I),
-    I=\= -1.
+    testLigneGagnant(L,Li,Pion), !.
+isGagnant(L, Li, Co, Pion):-
+    testColonneGagnant(L,Li,Pion), !.
