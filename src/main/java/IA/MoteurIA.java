@@ -1,8 +1,9 @@
+package IA;
+import org.jpl7.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.net.ServerSocket;
+import java.lang.Integer;
 import java.net.Socket;
-import java.util.Scanner;
 
 
 public class MoteurIA {
@@ -21,6 +22,20 @@ public class MoteurIA {
 		port = Integer.parseInt(args[1]);
 		int type=0;
 		try{
+
+			JPL.init();
+			Query q1 = new Query("consult('IA.pl')");
+			Query q4 =
+					new Query(
+							"fonction([-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],[0,0,1,1,2,2,3,3],Res)"
+					);
+
+			java.util.Map<String,Term> solution;
+
+			solution = q4.oneSolution();
+			System.out.println(solution.toString());
+
+
 			Socket sock = new Socket(addr,port);
 			DataInputStream DIS = new DataInputStream(sock.getInputStream());
 			DataOutputStream DOS = new DataOutputStream(sock.getOutputStream());
