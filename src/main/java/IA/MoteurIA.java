@@ -34,7 +34,6 @@ public class MoteurIA {
 				int result = DIS.readInt();
 				if (result != -1000) {
 					if (result >= 1000) {
-						System.out.println("Fin de partie réinitialisation");
 						nbPartie++;
 						for (int i = 0; i < 4; i++) {
 							for (int j = 0; j < 4; j++) {
@@ -46,7 +45,6 @@ public class MoteurIA {
 						}
 						continue;
 					}
-					System.out.println(result);
 					type = result % 10;
 					result /= 10;
 					int colonne = result % 10;
@@ -96,9 +94,6 @@ public class MoteurIA {
 					solution = q4.oneSolution();
 
 					int reponse = 0;
-					if (solution.get("Gagne").intValue() == 1) {
-						reponse += 1000;
-					}
 					plateau[solution.get("Ligne").intValue()][solution.get("Colonne").intValue()][0] = solution.get("Type")
 							.intValue();
 					plateau[solution.get("Ligne").intValue()][solution.get("Colonne").intValue()][1] = 0;
@@ -110,8 +105,13 @@ public class MoteurIA {
 							}
 						}
 					}
-					if (nbPion == 15) {
-						reponse += 2000;
+					if (solution.get("Gagne").intValue() == 1) {
+						reponse += 1000;
+					}
+					else{
+						if (nbPion == 15) {
+							reponse += 2000;
+						}
 					}
 					reponse += solution.get("Ligne").intValue() * 100;
 					reponse += solution.get("Colonne").intValue() * 10;

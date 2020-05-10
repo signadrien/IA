@@ -7,46 +7,37 @@ testCase(L,X) :-
     nth0(X,L,I),
     I<0.
 
+testColor(C,C2,T,T2):-
+    C\=C2,
+    T\=T2.
+testColor(C,C,_,_).
+
 testLigne(L,Li,T,C) :-
     E is Li*4,
     nth0(E,L,[Type,Coul]),
-    C =\= Coul ->
-        Type =\= T
-    ;
+    testColor(C,Coul,Type,T),
     F is Li*4+1,
     nth0(F,L,[Type1,Coul1]),
-    C =\= Coul1 ->
-        Type1 =\= T
-    ;
+    testColor(C,Coul1,Type1,T),
     G is Li*4+2,
     nth0(G,L,[Type2,Coul2]),
-    C =\= Coul2 ->
-        Type2 =\= T
-    ;
+    testColor(C,Coul2,Type2,T),
     H is Li*4+3,
     nth0(H,L,[Type3,Coul3]),
-    C =\= Coul3 ->
-        Type3 =\= T.
+    testColor(C,Coul3,Type3,T).
 
 testColonne(L,Co,T,C) :-
     nth0(Co,L,[Type,Coul]),
-    Coul =\= C ->
-        Type =\= T
-    ;
+    testColor(C,Coul,Type,T),
     E is Co+4,
-nth0(E,L,[Type1,Coul1]),
-    Coul1 =\= C ->
-        Type1 =\= T
-    ;
+    nth0(E,L,[Type1,Coul1]),
+    testColor(C,Coul1,Type1,T),
     F is Co+8,
     nth0(F,L,[Type2,Coul2]),
-    Coul2=\=C ->
-        Type2 =\= T
-    ;
+    testColor(C,Coul2,Type2,T),
     G is Co+12,
     nth0(G,L,[Type3,Coul3]),
-    Coul3=\=C ->
-        Type3 =\= T.
+    testColor(C,Coul3,Type3,T).
 
 
 testCarre(L,Li,Co,T,C):-
@@ -56,32 +47,31 @@ testCarre(L,Li,Co,T,C):-
     F == 0,
     G is (1+Li)*4+Co+1,
     nth0(G,L,[Type,Coul]),
-    Coul =\= C ->
-        Type =\= T,!.
-testCarre(L,Li,Co,T):-
+    testColor(C,Coul,Type,T),!.
+testCarre(L,Li,Co,T,C):-
     E is Li mod 2,
     E == 0,
     F is Co mod 2,
     F == 1,
     G is (1+Li)*4+Co-1,
-    Coul =\= C ->
-        Type =\= T,!.
-testCarre(L,Li,Co,T):-
+    nth0(G,L,[Type,Coul]),
+    testColor(C,Coul,Type,T),!.
+testCarre(L,Li,Co,T,C):-
     E is Li mod 2,
     E == 1,
     F is Co mod 2,
     F == 0,
     G is (Li-1)*4+Co+1,
-    Coul =\= C ->
-        Type =\= T,!.
-testCarre(L,Li,Co,T):-
+    nth0(G,L,[Type,Coul]),
+    testColor(C,Coul,Type,T),!.
+testCarre(L,Li,Co,T,C):-
     E is Li mod 2,
     E == 1,
     F is Co mod 2,
     F == 1,
     G is (Li-1)*4+Co-1,
-    Coul =\= C ->
-        Type =\= T,!.
+    nth0(G,L,[Type,Coul]),
+    testColor(C,Coul,Type,T),!.
 
 fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     (caseGagnante(L,Case,Li,Co,T) ->
@@ -105,23 +95,23 @@ fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     Piece = T,
     Gagnant = 0
     ;
-    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    fonction(L,L2P,CaseX,Gagnant,Ligne,Colonne,Piece),!)
     ;
-    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    fonction(L,L2P,CaseX,Gagnant,Ligne,Colonne,Piece),!)
     ;
-    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    fonction(L,L2P,CaseX,Gagnant,Ligne,Colonne,Piece),!)
     ;
     fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!).
 
 testLigneGagnant(L,Li,Co,[],Acc1):-
     E is Li * 4 + Co,
-    nth0(E,L,[Type,Coul]),
+    nth0(E,L,[Type,_]),
     Type =\= -1,
     Acc1 = [Type],!.
 
 testLigneGagnant(L,Li,Co,Acc,Acc1):-
     E is Li * 4 + Co,
-    nth0(E,L,[Type,Coul]),
+    nth0(E,L,[Type,_]),
     Type =\= -1,
     \+member(Type,Acc),
     append([Type],Acc,Acc1).
@@ -154,14 +144,14 @@ testColonnesGagnant(L,Li,Co,T):-
 testColonneGagnant(L,Li,Co,[],Acc1):-
     E is Li * 4 + Co,
     E1 is E mod 16,
-    nth0(E1, L, [Type,Coul]),
+    nth0(E1, L, [Type,_]),
     Type =\= -1,
     Acc1 = [Type],!.
 
 testColonneGagnant(L,Li,Co,Acc,Acc1):-
     E is Li * 4 + Co,
     E1 is E mod 16,
-    nth0(E1, L, [Type,Coul]),
+    nth0(E1, L, [Type,_]),
     Type =\= -1,
     \+member(Type,Acc),
     append([Type],Acc,Acc1).
@@ -172,16 +162,16 @@ testCarreGagnant(L,Li,Co,T):-
     F is Co mod 2,
     F == 0,
     G is (1+Li)*4+Co+1,
-    nth0(G,L,[Type,Coul]),
+    nth0(G,L,[Type,_]),
     Type =\= -1,
     Acc = [Type],
     G1 is Li * 4 + Co + 1,
-    nth0(G1,L,[Type1,Coul1]),
+    nth0(G1,L,[Type1,_]),
     Type1 =\= -1,
     \+member(Type1,Acc),
     append([Type1],Acc,Acc1),
     G2 is (1 + Li) * 4 + Co,
-    nth0(G2,L,[Type2,Coul2]),
+    nth0(G2,L,[Type2,_]),
     Type2 =\= -1,
     \+member(Type2,Acc1),
     append([Type2],Acc1,Acc2),
@@ -194,16 +184,16 @@ testCarreGagnant(L,Li,Co,T):-
     F is Co mod 2,
     F == 1,
     G is (1+Li)*4+Co-1,
-    nth0(G1,L,[Type,Coul]),
+    nth0(G,L,[Type,_]),
     Type =\= -1,
     Acc = [Type],
     G1 is Li * 4 + Co - 1,
-    nth0(G1,L,[Type1,Coul1]),
+    nth0(G1,L,[Type1,_]),
     Type1 =\= -1,
     \+member(Type1,Acc),
     append([Type1],Acc,Acc1),
     G2 is (1 + Li) * 4 + Co,
-    nth0(G2,L,[Type2,Coul2]),
+    nth0(G2,L,[Type2,_]),
     Type2 =\= -1,
     \+member(Type2,Acc1),
     append([Type2],Acc1,Acc2),
@@ -216,16 +206,16 @@ testCarreGagnant(L,Li,Co,T):-
     F is Co mod 2,
     F == 0,
     G is (Li-1)*4+Co+1,
-    nth0(G1,L,[Type,Coul]),
+    nth0(G,L,[Type,_]),
     Type =\= -1,
     Acc = [Type],
     G1 is Li * 4 + Co + 1,
-    nth0(G1,L,[Type1,Coul1]),
+    nth0(G1,L,[Type1,_]),
     Type1 =\= -1,
     \+member(Type1,Acc),
     append([Type1],Acc,Acc1),
     G2 is (Li -1) * 4 + Co,
-    nth0(G2,L,[Type2,Coul2]),
+    nth0(G2,L,[Type2,_]),
     Type2 =\= -1,
     \+member(Type2,Acc1),
     append([Type2],Acc1,Acc2),
@@ -239,16 +229,16 @@ testCarreGagnant(L,Li,Co,T):-
     F is Co mod 2,
     F == 1,
     G is (Li-1)*4+Co-1,
-    nth0(G1,L,[Type,Coul]),
+    nth0(G,L,[Type,_]),
     Type =\= -1,
     Acc = [Type],
     G1 is Li * 4 + Co - 1,
-    nth0(G1,L,[Type1,Coul1]),
+    nth0(G1,L,[Type1,_]),
     Type1 =\= -1,
     \+member(Type1,Acc),
     append([Type1],Acc,Acc1),
     G2 is (Li-1) * 4 + Co,
-    nth0(G2,L,[Type2,Coul2]),
+    nth0(G2,L,[Type2,_]),
     Type2 =\= -1,
     \+member(Type2,Acc1),
     append([Type2],Acc1,Acc2),
@@ -264,7 +254,7 @@ testGagnant(L,Li,Co,T):-
 
 
 caseGagnante(L,Case,Li,Co,T):-
-    select(C,Case,CaseC),
+    select(C,Case,_),
     Li is C // 4,
     Co is C mod 4,
     testGagnant(L,Li,Co,T),
