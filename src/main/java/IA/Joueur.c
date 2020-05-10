@@ -106,10 +106,7 @@ int main(int argc, char **argv)
 	struct sockaddr_in addClient;
 
 	int sockServ;
-	do
-	{
 		sockServ = socketServeur(atoi(argv[3]));
-	} while (sockServ < 0);
 
 	int sizeAddr = sizeof(struct sockaddr_in);
 	sockJava = accept(sockServ, (struct sockaddr *)&addClient, (socklen_t *)&sizeAddr);
@@ -125,8 +122,8 @@ int main(int argc, char **argv)
 	TPartieReq Requete;
 	short begin;
 	TPartieRep Reponse;
-	char color[T_BUF] = argv[5];
-	char nom[T_BUF] = argv[4];
+	char* color = argv[5];
+	char* nom = argv[4];
 	memcpy(Requete.nomJoueur, nom, T_NOM);
 	switch (color[0])
 	{
@@ -179,8 +176,6 @@ int main(int argc, char **argv)
 	}
 
 	int nbPartie = 1;
-
-	int nbCoup = 0;
 	TPion Pion;
 
 	Pion.coulPion = Requete.coulPion;
