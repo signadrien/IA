@@ -71,6 +71,12 @@ testCarre(L,Li,Co,T):-
 
 
 fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
+    (caseGagnante(L,Case,Li,Co,T) ->
+    Ligne = Li,
+    Colonne = Co,
+    Piece = T,
+    Gagnant = 1
+    );
     select(X,Case,CaseX),
     (testCase(L,X) ->
     Li is X//4,
@@ -101,22 +107,22 @@ testLigneGagnant(L,Li,Co, Ps,PsI):-
 testLignesGagnant(L,Li,Co,T) :-
     Ps = [0,1,2,3],
     E is Co + 1 mod 4,
-    testLigneGagnant(L,Li,E,T,Ps,PsI),
+    testLigneGagnant(L,Li,E,Ps,PsI),
     F is Co + 2 mod 4,
-    testLigneGagnant(L,Li,F,T,PsI,PsI1),
+    testLigneGagnant(L,Li,F,PsI,PsI1),
     G is Co + 3 mod 4,
-    testLigneGagnant(L,Li,G,T,PsI1,PsI2),
+    testLigneGagnant(L,Li,G,PsI1,PsI2),
     nth0(0,PsI2,T).
 
 
 testColonnesGagnant(L,Li,Co,T):-
     Ps = [0,1,2,3],
     E is Co + 4 mod 16,
-    testColonneGagnant(L,Li,E,T,Ps,PsI),
+    testColonneGagnant(L,Li,E,Ps,PsI),
     F is Co + 8 mod 16,
-    testColonneGagnant(L,Li,F,T,PsI,PsI1),
+    testColonneGagnant(L,Li,F,PsI,PsI1),
     G is Co + 12 mod 16,
-    testColonneGagnant(L,Li,G,T,PsI1,PsI2),
+    testColonneGagnant(L,Li,G,PsI1,PsI2),
     nth0(0,PsI2,T).
 
 testColonneGagnant(L,Li,Co,Ps,PsI):-
@@ -214,9 +220,12 @@ testGagnant(L,Li,Co,T):-
     testColonnesGagnant(L,Li,Co,T),!.
 
 
-caseGagnante(L,Lis,Li,Co,T):-
-    select(C,Lis,LisC),
+caseGagnante(L,Case,Li,Co,T):-
+    select(C,Case,CaseC),
     nth0(C,L,P),
     Li is C // 4,
     Co is C mod 4,
-    testGagnant(L,Li,Co,T).
+    testGagnant(L,Li,Co,T),
+    testLigne(L,Li,T),
+    testColonne(L,Co,T),
+    testCarre(L,Li,Co,T).
