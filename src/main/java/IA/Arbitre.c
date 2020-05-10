@@ -469,4 +469,8 @@ int main(int argc, char **argv)
 		printf("Score J1 : %d\n", J1Win);
 		printf("Score J2 : %d\n", J2Win);
 	}
+	shutdown(sockTransJ1, SHUT_RDWR);
+	close(sockTransJ1);
+	shutdown(sockTransJ2, SHUT_RDWR);
+	close(sockTransJ2);
 }
