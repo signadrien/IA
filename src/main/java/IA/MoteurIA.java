@@ -81,16 +81,11 @@ public class MoteurIA {
 				}
 				reser = reser.substring(0, reser.length() - 1);
 				reser += "]";
-				System.out.println(reser);
 				Query q4 = new Query(
 						"fonction(" + plat + "," + reser + "," + indPossible + ",Gagne,Ligne,Colonne,Type)");
 
 						System.out.println("fonction(" + plat + "," + reser + "," + indPossible + ",Gagne,Ligne,Colonne,Type)");
 				java.util.Map<String, Term> solution;
-				if(!q1.hasMoreSolutions()){
-					DOS.writeInt(000);
-				}
-				else {
 					solution = q4.oneSolution();
 
 					int reponse = 0;
@@ -117,9 +112,10 @@ public class MoteurIA {
 					reponse += solution.get("Colonne").intValue() * 10;
 					reponse += solution.get("Type").intValue();
 					reserve[0][type]--;
+					System.out.println(type+ " :"+ reserve[0][type]);
+					System.out.println(reponse);
 					DOS.writeInt(reponse);
 				}
-			}
 			sock.close();
 		} catch (Exception e) {
 			e.printStackTrace();

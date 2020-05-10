@@ -75,6 +75,7 @@ testCarre(L,Li,Co,T,C):-
 
 fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     (caseGagnante(L,Case,Li,Co,T) ->
+    member(T,L2),
     Ligne = Li,
     Colonne = Co,
     Piece = T,
@@ -95,11 +96,11 @@ fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     Piece = T,
     Gagnant = 0
     ;
-    fonction(L,L2P,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
     ;
-    fonction(L,L2P,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
     ;
-    fonction(L,L2P,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
     ;
     fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!).
 
@@ -260,4 +261,4 @@ caseGagnante(L,Case,Li,Co,T):-
     testGagnant(L,Li,Co,T),
     testLigne(L,Li,T,0),
     testColonne(L,Co,T,0),
-    testCarre(L,Li,Co,T,0),!.
+    testCarre(L,Li,Co,T,0).
