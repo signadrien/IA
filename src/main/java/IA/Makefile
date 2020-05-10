@@ -24,7 +24,7 @@ joueur: Joueur.c fonctionTCP.o ProtoQuantik.h
 	gcc -Wall Joueur.c -o joueur fonctionTCP.o $(LD_FLAGS)
 	
 arbitre: Arbitre.c fonctionTCP.o quantik-fPIC.o ProtoQuantik.h
-	gcc -Wall Arbitre.c -o arbitre quantik-fPIC.o fonctionTCP.o $(LD_FLAGS)-
+	gcc -Wall Arbitre.c -o arbitre quantik-fPIC.o fonctionTCP.o $(LD_FLAGS)
 	
 
 clean:

@@ -80,11 +80,8 @@ public class MoteurIA {
 
 				String reser ="[";
 				for(int i =0;i<4;i++){
-					for(int j =0;j<reserve[0][i];j++){
-						reser+=i;
-						if(i!=3 || j!=reserve[0][i]-1)
-							reser+=",";
-					}
+							if(reserve[0][i]>0)
+							reser+=i+",";
 				}
 				reser+="]";
 				System.out.println(reser);
@@ -96,9 +93,6 @@ public class MoteurIA {
 				java.util.Map<String,Term> solution;
 
 				solution = q4.oneSolution();
-				System.out.println(solution.get("Ligne"));
-				System.out.println(solution.get("Colonne"));
-				System.out.println(solution.get("Type"));
 					int reponse = 0;
 					if(solution.get("Gagne").intValue()==1){
 						reponse+=1000;

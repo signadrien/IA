@@ -72,23 +72,27 @@ testCarre(L,Li,Co,T):-
 
 fonction(L,L2,Case,Gagnant,Ligne,Colonne,Piece):-
     select(X,Case,CaseX),
-    testCase(L,X) -> 
+    (testCase(L,X) ->
     Li is X//4,
     Co is X mod 4,
     select(T,L2,L2P),
-    testLigne(L,Li,T) ->
-    testColonne(L,Co,T)->
-    testCarre(L,Li,Co,T)->
+    (testLigne(L,Li,T) ->
+    (testColonne(L,Co,T)->
+    (testCarre(L,Li,Co,T)->
     Ligne = Li,
     Colonne = Co,
     Piece = T,
-    Gagnant = 0;
-    fonction(L,L2,CasX,Gagnant,Ligne,Colonne,Piece),!;
-    fonction(L,L2,CasX,Gagnant,Ligne,Colonne,Piece),!;
-    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!;
-    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!.
+    Gagnant = 0
+    ;
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    ;
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    ;
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!)
+    ;
+    fonction(L,L2,CaseX,Gagnant,Ligne,Colonne,Piece),!).
 
-testLigneGagnant(L,Li,Co,T, Ps,PsI):-
+testLigneGagnant(L,Li,Co, Ps,PsI):-
     E is Li * 4 + Co,
     nth0(E,L,I),
     I =\= -1,
@@ -115,7 +119,7 @@ testColonnesGagnant(L,Li,Co,T):-
     testColonneGagnant(L,Li,G,T,PsI1,PsI2),
     nth0(0,PsI2,T).
 
-testColonneGagnant(L,Li,Co,T,Ps,PsI):-
+testColonneGagnant(L,Li,Co,Ps,PsI):-
     E is Li * 4 + Co,
     nth0(E, L, I),
     I =\= -1,
