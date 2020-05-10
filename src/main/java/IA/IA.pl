@@ -1,6 +1,6 @@
  :-use_module(library(plunit)).
  :-use_module(library(clpfd)).
- :- use_module(library(random)).
+ :-use_module(library(random)).
 
 
 testCase(L,X) :-
@@ -67,6 +67,34 @@ testCarre(L,Li,Co,T):-
     G is (Li-1)*4+Co-1,
     nth0(G,L,I),
     I=\=T,!.
+
+
+testLignesGagnant(L,Li,Co,T):-
+    testLigneGagnant(L,Li,Co+1 mod 4),
+    testLigneGagnant(L,Li,Co +2 mod 4),
+    testLigneGagnant(L,Li,Co +3 mod 4).
+
+
+testLigneGagnant(L,Li,Co,T) :-
+    E is Li*4+Co,
+    nth0(E,L,I),
+    I\= -1.
+
+testColonneGagnant(L,Co,T) :-
+    nth0(Co,L,I),
+    I\= -1,
+    E is Co+4,
+    nth0(E,L,J),
+    J\= -1,
+    F is Co+8,
+    nth0(F,L,K),
+    K \= -1,
+    G is Co+12,
+    nth0(G,L,L2),
+    L2\= -1.
+
+isGagnant(L, Li, Co, Pion):-
+    testLigneGagnant(L,Li,Pion).
 
 fonction(L,L2,Res):-
     random_between(0,15,X),
